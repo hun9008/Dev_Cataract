@@ -4,7 +4,7 @@ from fastapi import HTTPException, status, Depends, Request
 from models.user import User
 from models.doctor import Doctor
 from models.user import Pet
-from config.database import collection_name_user, collection_name_doctor, collection_name_post, collection_name_image, collection_name_comment,fs
+from config.database import collection_name_user, collection_name_doctor, collection_name_post, collection_name_image, collection_name_comment, collection_name_pet,fs
 from schema.schemas import list_serial
 from bson import ObjectId
 from typing import List
@@ -96,6 +96,21 @@ async def clear_user():
 async def clear_doctor():
     collection_name_doctor.delete_many({})
     return "All doctors are deleted"
+
+## add pet
+@router.post("/account/user/{user_id}/pet")
+async def post_pet(user_id: str, pet: dict):
+    pet_data = {
+        "p_name": pet["p_name"],
+        "p_type": pet["p_type"],
+        "p_color": pet["p_color"],
+        "p_age": pet["p_age"]
+    }
+    inserted_id = collection_name_pet.insert_one(pet_data).inserted_id
+    pet["_id"] = str(inserted_id)
+    collection_name_user.update_one({"_id": ObjectId(user_id)}, {"$push": {"pet": pet}})
+    return pet
+
 
 ## post article
 @router.get("/posting/feed_all")
