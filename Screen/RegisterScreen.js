@@ -62,24 +62,18 @@ const RegisterScreen = (props) => {
       name: userName,
       nickname : userNickname,
       email: userEmail,
-      age: userAge,
       password: userPassword,
+      age: userAge,
+
     };
-    var formBody = [];
-    for (var key in dataToSend) {
-      var encodedKey = encodeURIComponent(key);
-      var encodedValue = encodeURIComponent(dataToSend[key]);
-      formBody.push(encodedKey + '=' + encodedValue);
-    }
-    formBody = formBody.join('&');
 
     fetch('http://mint.hunian.site:8000/account/signup/user', {
       method: 'POST',
-      body: formBody,
+      body: JSON.stringify(dataToSend),
       headers: {
         //Header Defination
         'Content-Type':
-        'application/x-www-form-urlencoded;charset=UTF-8',
+        'application/json',
       },
     })
       .then((response) => response.json())
@@ -87,7 +81,6 @@ const RegisterScreen = (props) => {
         //Hide Loader
         setLoading(false);
         console.log(responseJson);
-//        console.log(responseJson.status);
         // If server response message same as Data Matched
         if (responseJson.status === 'success') {
           setIsRegistraionSuccess(true);

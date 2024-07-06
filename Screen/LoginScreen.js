@@ -51,9 +51,9 @@ const LoginScreen = ({ navigation }) => {
         setLoading(false);
         console.log('Response JSON:', responseJson); // 수정된 부분: 디버깅 출력 추가
         // If server response message same as Data Matched
-        if (responseJson.status === 'success') {
-          AsyncStorage.setItem('user_id', responseJson.data.email);
-          console.log(responseJson.data.email);
+        if (responseJson.u_email) {
+          AsyncStorage.setItem('user_id', responseJson.u_email);
+          console.log(responseJson.u_email);
           navigation.replace('DrawerNavigationRoutes');
         } else {
           setErrortext(responseJson.msg);
