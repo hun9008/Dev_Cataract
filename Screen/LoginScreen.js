@@ -1,25 +1,20 @@
-// Example of Splash, Login and Sign Up in React Native
-// https://aboutreact.com/react-native-login-and-signup/
-
 // Import React and Component
-import React, {useState, createRef} from 'react';
+import React, { useState, createRef } from 'react';
 import {
   StyleSheet,
   TextInput,
   View,
   Text,
   ScrollView,
-  Image,
   Keyboard,
   TouchableOpacity,
   KeyboardAvoidingView,
 } from 'react-native';
 
-import AsyncStorage from '@react-native-community/async-storage';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Loader from './Components/Loader';
 
-const LoginScreen = ({navigation}) => {
+const LoginScreen = ({ navigation }) => {
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,29 +33,23 @@ const LoginScreen = ({navigation}) => {
       return;
     }
     setLoading(true);
-    let dataToSend = {email: userEmail, password: userPassword};
-    let formBody = [];
-    for (let key in dataToSend) {
-      let encodedKey = encodeURIComponent(key);
-      let encodedValue = encodeURIComponent(dataToSend[key]);
-      formBody.push(encodedKey + '=' + encodedValue);
-    }
-    formBody = formBody.join('&');
+
+    let dataToSend = { u_email: userEmail, u_pwd: userPassword };
+    console.log('Data to send:', dataToSend); // 수정된 부분: 디버깅 출력 추가
 
     fetch('http://mint.hunian.site:8000/account/login/user', {
       method: 'POST',
-      body: formBody,
+      body: JSON.stringify(dataToSend),
       headers: {
-        //Header Defination
-        'Content-Type':
-        'application/x-www-form-urlencoded;charset=UTF-8',
+        // Header Definition
+        'Content-Type': 'application/json',
       },
     })
       .then((response) => response.json())
       .then((responseJson) => {
-        //Hide Loader
+        // Hide Loader
         setLoading(false);
-        console.log(responseJson);
+        console.log('Response JSON:', responseJson); // 수정된 부분: 디버깅 출력 추가
         // If server response message same as Data Matched
         if (responseJson.status === 'success') {
           AsyncStorage.setItem('user_id', responseJson.data.email);
@@ -72,7 +61,7 @@ const LoginScreen = ({navigation}) => {
         }
       })
       .catch((error) => {
-        //Hide Loader
+        // Hide Loader
         setLoading(false);
         console.error(error);
       });
@@ -90,7 +79,7 @@ const LoginScreen = ({navigation}) => {
         }}>
         <View>
           <KeyboardAvoidingView enabled>
-            <View style={{alignItems: 'center'}}>
+            <View style={{ alignItems: 'center' }}>
             </View>
             <View style={styles.SectionStyle}>
               <TextInput
@@ -109,6 +98,7 @@ const LoginScreen = ({navigation}) => {
                 }
                 underlineColorAndroid="#f000"
                 blurOnSubmit={false}
+                value={userEmail} // 수정된 부분: value 속성 추가
               />
             </View>
             <View style={styles.SectionStyle}>

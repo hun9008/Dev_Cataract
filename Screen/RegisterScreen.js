@@ -96,6 +96,7 @@ const RegisterScreen = (props) => {
           );
         } else {
           setErrortext(responseJson.msg);
+          console.log('회원가입에 실패하였습니다.');
         }
       })
       .catch((error) => {
