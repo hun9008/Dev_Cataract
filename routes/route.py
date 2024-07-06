@@ -1,11 +1,13 @@
 from fastapi import APIRouter
+from fastapi import File, UploadFile
 from fastapi import HTTPException, status, Depends, Request
 from models.user import User
 from models.doctor import Doctor
 from models.user import Pet
-from config.database import collection_name_user, collection_name_doctor
+from config.database import collection_name_user, collection_name_doctor, collection_name_post, collection_name_image, fs
 from schema.schemas import list_serial
 from bson import ObjectId
+from typing import List
 
 router = APIRouter()
 
@@ -94,4 +96,34 @@ async def clear_user():
 async def clear_doctor():
     collection_name_doctor.delete_many({})
     return "All doctors are deleted"
+
+## post article
+@router.get("/posting/feed_all")
+async def get_feed_all():
+    posts = list_serial(collection_name_post.find())
+    return posts
+
+@router.get("/posting/feed")
+async def get_feed(u_id: str):
+    posts = list_serial(collection_name_post.find({"u_id": u_id}))
+    return posts
+
+@router.post("/posting/feed")
+async def post_feed(post : dict, images: List[UploadFile] = File([])):
+    image_ids = []
+    for image in images:
+        image_id = fs.put(image.file, filename=image.filename)
+        image_data = {
+            "filename": image.filename,
+            "image_id": image_id
+        }
+        inserted_id = collection_name_image.insert_one(image_data).inserted_id
+        image_ids.append(str(image_id))
+    post_data = {
+        "po_detail" : post["po_detail"],
+        "im_ids" : image_ids
+    }
+    inserted_id = collection_name_post.insert_one(post_data).inserted_id
+    post["_id"] = str(inserted_id)
+    return post
 

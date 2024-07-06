@@ -5,7 +5,8 @@ class Comment(BaseModel):
     co_detail : str
     
 class Image(BaseModel):
-    im_id : str
+    filename : str
+    
     
 class UserPostLike(BaseModel):
     user_id : str
