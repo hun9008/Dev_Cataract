@@ -1,3 +1,4 @@
 cataract
 __pycache__
-
+.env
+mongo_test.py

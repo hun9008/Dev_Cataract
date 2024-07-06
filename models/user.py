@@ -8,6 +8,7 @@ class Pet(BaseModel):
     p_age: str
 
 class User(BaseModel):
+    _id: str
     u_email: str
     u_pwd: str
     u_PN: str # Phone Number

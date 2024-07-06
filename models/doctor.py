@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 class Doctor(BaseModel):
+    _id: str
     d_email: str
     d_pwd: str
     d_PN: str
