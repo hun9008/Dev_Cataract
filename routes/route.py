@@ -66,7 +66,9 @@ async def post_doctor(doctor: dict):
 ## LOGIN
 
 @router.post("/account/login/user")
-async def login_user(u_email: str, u_pwd: str):
+async def login_user(request: dict):
+    u_email = request["u_email"]
+    u_pwd = request["u_pwd"]
     user = collection_name_user.find_one({"u_email": u_email, "u_pwd": u_pwd})
     if user:
         user["_id"] = str(user["_id"])
@@ -75,7 +77,9 @@ async def login_user(u_email: str, u_pwd: str):
         raise HTTPException(status_code=404, detail="User not found or password incorrect")
 
 @router.post("/account/login/doctor")
-async def login_doctor(d_email: str, d_pwd: str):
+async def login_doctor(request: dict):
+    d_email = request["d_email"]
+    d_pwd = request["d_pwd"]
     doctor = collection_name_doctor.find_one({"d_email": d_email, "d_pwd": d_pwd})
     if doctor:
         doctor["_id"] = str(doctor["_id"])
