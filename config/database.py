@@ -1,7 +1,13 @@
 from pymongo import MongoClient
 from gridfs import GridFS
+from dotenv import load_dotenv
+import os
 
-client = MongoClient("mongodb+srv://younghune135:pICR3hE7XLDdVxUe@cataract.4vpi9yq.mongodb.net/?appName=cataract")
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+
+mongo_url = os.getenv("MONGO_URL")
+# print("mongo_url : ", mongo_url)
+client = MongoClient(mongo_url, tls=True)
 
 db = client.account
 

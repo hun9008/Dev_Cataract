@@ -21,6 +21,15 @@ sudo docker run -d -p 8000:8000 yonghune/cataract-app:0.1
 sudo docker ps
 ```
 
+## Docker build
+
+```
+docker build -t <이미지_이름>:<태그> .
+docker run -d -p 8000:8000 cataract-app:latest
+docker tag cataract-app yonghune/cataract-app:0.2
+docker push yonghune/cataract-app:0.2
+```
+
 ## Virtual Machine run
 
 ```

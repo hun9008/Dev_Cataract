@@ -17,11 +17,19 @@ router = APIRouter()
 async def get_users():
     users = list_serial(collection_name_user.find())
     return users
+    # raw_users = collection_name_user.find()
+    # users = [transform_to_class(user) for user in raw_users]
+    # print("done transform_to_class", users)
+    # return list_serial(users)
 
 @router.get("/account/all_doctors")
 async def get_doctors():
     doctors = list_serial(collection_name_doctor.find())
     return doctors
+    # raw_doctors = collection_name_doctor.find()
+    # doctors = [transform_to_class(doctor) for doctor in raw_doctors]
+    # print("done transform_to_class", doctors)
+    # return list_serial(doctors)
 
 ## SIGN UP
 
@@ -98,75 +106,75 @@ async def clear_doctor():
     return "All doctors are deleted"
 
 ## add pet
-@router.post("/account/user/{user_id}/pet")
-async def post_pet(user_id: str, pet: dict):
-    pet_data = {
-        "p_name": pet["p_name"],
-        "p_type": pet["p_type"],
-        "p_color": pet["p_color"],
-        "p_age": pet["p_age"]
-    }
-    inserted_id = collection_name_pet.insert_one(pet_data).inserted_id
-    pet["_id"] = str(inserted_id)
-    collection_name_user.update_one({"_id": ObjectId(user_id)}, {"$push": {"pet": pet}})
-    return pet
+# @router.post("/account/user/{user_id}/pet")
+# async def post_pet(user_id: str, pet: dict):
+#     pet_data = {
+#         "p_name": pet["p_name"],
+#         "p_type": pet["p_type"],
+#         "p_color": pet["p_color"],
+#         "p_age": pet["p_age"]
+#     }
+#     inserted_id = collection_name_pet.insert_one(pet_data).inserted_id
+#     pet["_id"] = str(inserted_id)
+#     collection_name_user.update_one({"_id": ObjectId(user_id)}, {"$push": {"pet": pet}})
+#     return pet
 
 
-## post article
-@router.get("/posting/feed_all")
-async def get_feed_all():
-    posts = list_serial(collection_name_post.find())
-    return posts
+# ## post article
+# @router.get("/posting/feed_all")
+# async def get_feed_all():
+#     posts = list_serial(collection_name_post.find())
+#     return posts
 
-@router.get("/posting/feed")
-async def get_feed(u_id: str):
-    posts = list_serial(collection_name_post.find({"u_id": u_id}))
-    return posts
+# @router.get("/posting/feed")
+# async def get_feed(u_id: str):
+#     posts = list_serial(collection_name_post.find({"u_id": u_id}))
+#     return posts
 
-@router.post("/posting/feed")
-async def post_feed(post : dict, images: List[UploadFile] = File([])):
-    image_ids = []
-    for image in images:
-        image_id = fs.put(image.file, filename=image.filename)
-        image_data = {
-            "filename": image.filename,
-            "image_id": image_id
-        }
-        inserted_id = collection_name_image.insert_one(image_data).inserted_id
-        image_ids.append(str(image_id))
-    post_data = {
-        "po_detail" : post["po_detail"],
-        "user_id" : post["user_id"],
-        "im_ids" : image_ids
-    }
-    inserted_id = collection_name_post.insert_one(post_data).inserted_id
-    post["_id"] = str(inserted_id)
-    return post
+# @router.post("/posting/feed")
+# async def post_feed(post : dict, images: List[UploadFile] = File([])):
+#     image_ids = []
+#     for image in images:
+#         image_id = fs.put(image.file, filename=image.filename)
+#         image_data = {
+#             "filename": image.filename,
+#             "image_id": image_id
+#         }
+#         inserted_id = collection_name_image.insert_one(image_data).inserted_id
+#         image_ids.append(str(image_id))
+#     post_data = {
+#         "po_detail" : post["po_detail"],
+#         "user_id" : post["user_id"],
+#         "im_ids" : image_ids
+#     }
+#     inserted_id = collection_name_post.insert_one(post_data).inserted_id
+#     post["_id"] = str(inserted_id)
+#     return post
 
-@router.delete("/posting/feed")
-async def delete_feed(post_id: str):
-    collection_name_post.delete_one({"_id": ObjectId(post_id)})
-    return post_id
+# @router.delete("/posting/feed")
+# async def delete_feed(post_id: str):
+#     collection_name_post.delete_one({"_id": ObjectId(post_id)})
+#     return post_id
 
 ## comment
-@router.post("/posting/feed/{post_id}/comment")
-async def post_comment(post_id: str, comment: dict):
-    comment_data = {
-        "co_detail": comment["co_detail"],
-        "user_id": comment["user_id"],
-        "post_id": post_id
-    }
-    inserted_id = collection_name_comment.insert_one(comment_data).inserted_id
-    comment["_id"] = str(inserted_id)
-    return comment
+# @router.post("/posting/feed/{post_id}/comment")
+# async def post_comment(post_id: str, comment: dict):
+#     comment_data = {
+#         "co_detail": comment["co_detail"],
+#         "user_id": comment["user_id"],
+#         "post_id": post_id
+#     }
+#     inserted_id = collection_name_comment.insert_one(comment_data).inserted_id
+#     comment["_id"] = str(inserted_id)
+#     return comment
 
-@router.get("/posting/feed/{post_id}/comment")
-async def get_comment(post_id: str):
-    comments = list_serial(collection_name_comment.find({"post_id": post_id}))
-    return comments
+# @router.get("/posting/feed/{post_id}/comment")
+# async def get_comment(post_id: str):
+#     comments = list_serial(collection_name_comment.find({"post_id": post_id}))
+#     return comments
 
-@router.delete("/posting/feed/{post_id}/comment")
-async def delete_comment(comment_id : str):
-    if collection_name_comment.find_one({"_id": ObjectId(comment_id)}):
-        collection_name_comment.delete_one({"_id": ObjectId(comment_id)})
-    return comment_id
+# @router.delete("/posting/feed/{post_id}/comment")
+# async def delete_comment(comment_id : str):
+#     if collection_name_comment.find_one({"_id": ObjectId(comment_id)}):
+#         collection_name_comment.delete_one({"_id": ObjectId(comment_id)})
+#     return comment_id
