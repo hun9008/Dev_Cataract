@@ -4,7 +4,7 @@ from fastapi import HTTPException, status, Depends, Request
 from models.user import User
 from models.doctor import Doctor
 from models.user import Pet
-from config.database import collection_name_user, collection_name_doctor, collection_name_post, collection_name_image, fs
+from config.database import collection_name_user, collection_name_doctor, collection_name_post, collection_name_image, collection_name_comment,fs
 from schema.schemas import list_serial
 from bson import ObjectId
 from typing import List
@@ -121,9 +121,37 @@ async def post_feed(post : dict, images: List[UploadFile] = File([])):
         image_ids.append(str(image_id))
     post_data = {
         "po_detail" : post["po_detail"],
+        "user_id" : post["user_id"],
         "im_ids" : image_ids
     }
     inserted_id = collection_name_post.insert_one(post_data).inserted_id
     post["_id"] = str(inserted_id)
     return post
 
+@router.delete("/posting/feed")
+async def delete_feed(post_id: str):
+    collection_name_post.delete_one({"_id": ObjectId(post_id)})
+    return post_id
+
+## comment
+@router.post("/posting/feed/{post_id}/comment")
+async def post_comment(post_id: str, comment: dict):
+    comment_data = {
+        "co_detail": comment["co_detail"],
+        "user_id": comment["user_id"],
+        "post_id": post_id
+    }
+    inserted_id = collection_name_comment.insert_one(comment_data).inserted_id
+    comment["_id"] = str(inserted_id)
+    return comment
+
+@router.get("/posting/feed/{post_id}/comment")
+async def get_comment(post_id: str):
+    comments = list_serial(collection_name_comment.find({"post_id": post_id}))
+    return comments
+
+@router.delete("/posting/feed/{post_id}/comment")
+async def delete_comment(comment_id : str):
+    if collection_name_comment.find_one({"_id": ObjectId(comment_id)}):
+        collection_name_comment.delete_one({"_id": ObjectId(comment_id)})
+    return comment_id
