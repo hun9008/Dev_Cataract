@@ -19,9 +19,9 @@ import Loader from './Components/Loader';
 
 const RegisterScreen = (props) => {
   const [userName, setUserName] = useState('');
+  const [userNickname, setUserNickname] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userAge, setUserAge] = useState('');
-  const [userAddress, setUserAddress] = useState('');
   const [userPassword, setUserPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errortext, setErrortext] = useState('');
@@ -32,38 +32,37 @@ const RegisterScreen = (props) => {
 
   const emailInputRef = createRef();
   const ageInputRef = createRef();
-  const addressInputRef = createRef();
   const passwordInputRef = createRef();
 
   const handleSubmitButton = () => {
     setErrortext('');
     if (!userName) {
-      alert('Please fill Name');
+      alert('이름을 입력해주세요.');
       return;
     }
     if (!userEmail) {
-      alert('Please fill Email');
+      alert('이메일을 입력해주세요.');
       return;
     }
     if (!userAge) {
-      alert('Please fill Age');
+      alert('생년월일을 입력해주세요.');
       return;
     }
-    if (!userAddress) {
-      alert('Please fill Address');
+    if (!userNickname) {
+      alert('닉네임을 입력해주세요.');
       return;
     }
     if (!userPassword) {
-      alert('Please fill Password');
+      alert('비밀번호를 입력해주세요.');
       return;
     }
     //Show Loader
     setLoading(true);
     var dataToSend = {
       name: userName,
+      nickname : userNickname,
       email: userEmail,
       age: userAge,
-      address: userAddress,
       password: userPassword,
     };
     var formBody = [];
@@ -74,7 +73,7 @@ const RegisterScreen = (props) => {
     }
     formBody = formBody.join('&');
 
-    fetch('http://localhost:3000/api/user/register', {
+    fetch('http://mint.hunian.site:8000/account/signup/user', {
       method: 'POST',
       body: formBody,
       headers: {
@@ -92,7 +91,7 @@ const RegisterScreen = (props) => {
         if (responseJson.status === 'success') {
           setIsRegistraionSuccess(true);
           console.log(
-            'Registration Successful. Please Login to proceed'
+            '회원가입이 완료되었습니다.'
           );
         } else {
           setErrortext(responseJson.msg);
@@ -221,22 +220,21 @@ const RegisterScreen = (props) => {
               blurOnSubmit={false}
             />
           </View>
-          <View style={styles.SectionStyle}>
-            <TextInput
-              style={styles.inputStyle}
-              onChangeText={(UserAddress) =>
-                setUserAddress(UserAddress)
-              }
-              underlineColorAndroid="#f000"
-              placeholder="Enter Address"
-              placeholderTextColor="#8b9cb5"
-              autoCapitalize="sentences"
-              ref={addressInputRef}
-              returnKeyType="next"
-              onSubmitEditing={Keyboard.dismiss}
-              blurOnSubmit={false}
-            />
-          </View>
+            <View style={styles.SectionStyle}>
+              <TextInput
+                style={styles.inputStyle}
+                onChangeText={(UserNickname) => setUserNicknameName(UserNickname)}
+                underlineColorAndroid="#f000"
+                placeholder="Enter Nickname"
+                placeholderTextColor="#8b9cb5"
+                autoCapitalize="sentences"
+                returnKeyType="next"
+                onSubmitEditing={() =>
+                  emailInputRef.current && emailInputRef.current.focus()
+                }
+                blurOnSubmit={false}
+              />
+            </View>
           {errortext != '' ? (
             <Text style={styles.errorTextStyle}>
               {errortext}
