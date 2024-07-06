@@ -87,6 +87,7 @@ const RegisterScreen = (props) => {
         //Hide Loader
         setLoading(false);
         console.log(responseJson);
+//        console.log(responseJson.status);
         // If server response message same as Data Matched
         if (responseJson.status === 'success') {
           setIsRegistraionSuccess(true);
@@ -132,7 +133,7 @@ const RegisterScreen = (props) => {
     );
   }
   return (
-    <View style={{flex: 1, backgroundColor: '#307ecc'}}>
+    <View style={{flex: 1, backgroundColor: 'white'}}>
       <Loader loading={loading} />
       <ScrollView
         keyboardShouldPersistTaps="handled"
@@ -141,15 +142,6 @@ const RegisterScreen = (props) => {
           alignContent: 'center',
         }}>
         <View style={{alignItems: 'center'}}>
-          <Image
-            source={require('../Image/aboutreact.png')}
-            style={{
-              width: '50%',
-              height: 100,
-              resizeMode: 'contain',
-              margin: 30,
-            }}
-          />
         </View>
         <KeyboardAvoidingView enabled>
           <View style={styles.SectionStyle}>
@@ -213,17 +205,13 @@ const RegisterScreen = (props) => {
               keyboardType="numeric"
               ref={ageInputRef}
               returnKeyType="next"
-              onSubmitEditing={() =>
-                addressInputRef.current &&
-                addressInputRef.current.focus()
-              }
               blurOnSubmit={false}
             />
           </View>
             <View style={styles.SectionStyle}>
               <TextInput
                 style={styles.inputStyle}
-                onChangeText={(UserNickname) => setUserNicknameName(UserNickname)}
+                onChangeText={(UserNickname) => setUserNickname(UserNickname)}
                 underlineColorAndroid="#f000"
                 placeholder="Enter Nickname"
                 placeholderTextColor="#8b9cb5"
@@ -244,7 +232,7 @@ const RegisterScreen = (props) => {
             style={styles.buttonStyle}
             activeOpacity={0.5}
             onPress={handleSubmitButton}>
-            <Text style={styles.buttonTextStyle}>REGISTER</Text>
+            <Text style={styles.buttonTextStyle}>회원가입</Text>
           </TouchableOpacity>
         </KeyboardAvoidingView>
       </ScrollView>
@@ -260,13 +248,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginLeft: 35,
     marginRight: 35,
-    margin: 10,
+    margin: 2,
   },
   buttonStyle: {
-    backgroundColor: '#7DE24E',
+    backgroundColor: '#084B8A',
     borderWidth: 0,
     color: '#FFFFFF',
-    borderColor: '#7DE24E',
+    borderColor: '#084B8A',
     height: 40,
     alignItems: 'center',
     borderRadius: 30,
@@ -278,15 +266,15 @@ const styles = StyleSheet.create({
   buttonTextStyle: {
     color: '#FFFFFF',
     paddingVertical: 10,
-    fontSize: 16,
+    fontSize: 14,
   },
   inputStyle: {
     flex: 1,
-    color: 'white',
+    color: 'black',
     paddingLeft: 15,
     paddingRight: 15,
     borderWidth: 1,
-    borderRadius: 30,
+    borderRadius: 10,
     borderColor: '#dadae8',
   },
   errorTextStyle: {
