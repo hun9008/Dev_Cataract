@@ -21,8 +21,10 @@ const RegisterScreen = (props) => {
   const [userName, setUserName] = useState('');
   const [userNickname, setUserNickname] = useState('');
   const [userEmail, setUserEmail] = useState('');
-  const [userAge, setUserAge] = useState('');
   const [userPassword, setUserPassword] = useState('');
+  const [userPN, setUserPN] = useState('');
+  const [userSex, setUserSex] = useState('');
+  const [userBirth, setUserBirth] = useState('');
   const [loading, setLoading] = useState(false);
   const [errortext, setErrortext] = useState('');
   const [
@@ -31,8 +33,11 @@ const RegisterScreen = (props) => {
   ] = useState(false);
 
   const emailInputRef = createRef();
-  const ageInputRef = createRef();
   const passwordInputRef = createRef();
+  const nicknameInputRef = createRef();
+  const pnInputRef = createRef();
+  const sexInputRef = createRef();
+  const birthInputRef = createRef();
 
   const handleSubmitButton = () => {
     setErrortext('');
@@ -44,10 +49,6 @@ const RegisterScreen = (props) => {
       alert('이메일을 입력해주세요.');
       return;
     }
-    if (!userAge) {
-      alert('생년월일을 입력해주세요.');
-      return;
-    }
     if (!userNickname) {
       alert('닉네임을 입력해주세요.');
       return;
@@ -56,15 +57,25 @@ const RegisterScreen = (props) => {
       alert('비밀번호를 입력해주세요.');
       return;
     }
+    if (!userPN) {
+        alert('전화번호를 입력해주세요.');
+    }
+    if (!userSex) {
+        alert('성별을 선택해주세요.');
+    }
+    if (!userBirth) {
+        alert('생년월일을 입력해주세요.');
+    }
     //Show Loader
     setLoading(true);
     var dataToSend = {
-      name: userName,
-      nickname : userNickname,
-      email: userEmail,
-      password: userPassword,
-      age: userAge,
-
+      u_email: userEmail,
+      u_pwd: userPassword,
+      u_PN : userPN,
+      u_birth : userBirth,
+      u_sex : userSex,
+      u_name: userName,
+      u_nickname : userNickname,
     };
 
     fetch('http://mint.hunian.site:8000/account/signup/user', {
@@ -82,7 +93,7 @@ const RegisterScreen = (props) => {
         setLoading(false);
         console.log(responseJson);
         // If server response message same as Data Matched
-        if (responseJson.status === 'success') {
+        if (responseJson._id) {
           setIsRegistraionSuccess(true);
           console.log(
             '회원가입이 완료되었습니다.'
@@ -103,7 +114,7 @@ const RegisterScreen = (props) => {
       <View
         style={{
           flex: 1,
-          backgroundColor: '#307ecc',
+          backgroundColor: 'white',
           justifyContent: 'center',
         }}>
         <Image
@@ -121,7 +132,7 @@ const RegisterScreen = (props) => {
           style={styles.buttonStyle}
           activeOpacity={0.5}
           onPress={() => props.navigation.navigate('LoginScreen')}>
-          <Text style={styles.buttonTextStyle}>Login Now</Text>
+          <Text style={styles.buttonTextStyle}>로그인하기</Text>
         </TouchableOpacity>
       </View>
     );
@@ -183,22 +194,9 @@ const RegisterScreen = (props) => {
               returnKeyType="next"
               secureTextEntry={true}
               onSubmitEditing={() =>
-                ageInputRef.current &&
-                ageInputRef.current.focus()
+                nicknameInputRef.current &&
+                nicknameInputRef.current.focus()
               }
-              blurOnSubmit={false}
-            />
-          </View>
-          <View style={styles.SectionStyle}>
-            <TextInput
-              style={styles.inputStyle}
-              onChangeText={(UserAge) => setUserAge(UserAge)}
-              underlineColorAndroid="#f000"
-              placeholder="Enter Age"
-              placeholderTextColor="#8b9cb5"
-              keyboardType="numeric"
-              ref={ageInputRef}
-              returnKeyType="next"
               blurOnSubmit={false}
             />
           </View>
@@ -212,11 +210,60 @@ const RegisterScreen = (props) => {
                 autoCapitalize="sentences"
                 returnKeyType="next"
                 onSubmitEditing={() =>
-                  emailInputRef.current && emailInputRef.current.focus()
+                  pnInputRef.current && pnInputRef.current.focus()
                 }
                 blurOnSubmit={false}
               />
             </View>
+          <View style={styles.SectionStyle}>
+            <TextInput
+              style={styles.inputStyle}
+              onChangeText={(UserPN) => setUserPN(UserPN)}
+              underlineColorAndroid="#f000"
+              placeholder="Enter Phone Number ex) 010-xxxx-xxxx"
+              placeholderTextColor="#8b9cb5"
+              autoCapitalize="sentences"
+              returnKeyType="next"
+              onSubmitEditing={() =>
+                sexInputRef.current && sexInputRef.current.focus()
+              }
+              blurOnSubmit={false}
+            />
+          </View>
+          <View style={styles.SectionStyle}>
+              <TextInput
+                style={styles.inputStyle}
+                onChangeText={(UserSex) =>
+                  setUserSex(UserSex)
+                }
+                underlineColorAndroid="#f000"
+                placeholder="Enter Sex ex) Male or Female"
+                placeholderTextColor="#8b9cb5"
+                placeholderTextColor="#8b9cb5"
+                autoCapitalize="sentences"
+                returnKeyType="next"
+                onSubmitEditing={() =>
+                  birthInputRef.current &&
+                  birthInputRef.current.focus()
+                }
+                blurOnSubmit={false}
+              />
+           </View>
+           <View style={styles.SectionStyle}>
+            <TextInput
+              style={styles.inputStyle}
+              onChangeText={(UserBirth) =>
+                setUserBirth(UserBirth)
+              }
+              underlineColorAndroid="#f000"
+              placeholder="Enter Birth ex) xxxx-xx-xx"
+              placeholderTextColor="#8b9cb5"
+              placeholderTextColor="#8b9cb5"
+              autoCapitalize="sentences"
+              returnKeyType="next"
+              blurOnSubmit={false}
+            />
+          </View>
           {errortext != '' ? (
             <Text style={styles.errorTextStyle}>
               {errortext}
