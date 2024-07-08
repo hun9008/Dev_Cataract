@@ -12,7 +12,9 @@ import {createStackNavigator} from '@react-navigation/stack';
 // Import Screens
 import SplashScreen from './Screen/SplashScreen';
 import LoginScreen from './Screen/LoginScreen';
-import RegisterScreen from './Screen/RegisterScreen';
+import UserRegisterScreen from './Screen/RegisterScreen/UserRegisterScreen';
+import DoctorRegisterScreen from './Screen/RegisterScreen/DoctorRegisterScreen';
+import SelectDoctorUser from './Screen/SelectDoctorUser';
 import DrawerNavigationRoutes from './Screen/DrawerNavigationRoutes';
 
 const Stack = createStackNavigator();
@@ -27,19 +29,38 @@ const Auth = () => {
         options={{headerShown: false}}
       />
       <Stack.Screen
-        name="RegisterScreen"
-        component={RegisterScreen}
+          name="SelectDoctorUser"
+          component={SelectDoctorUser}
+          options={{headerShown: false}}
+        />
+      <Stack.Screen
+        name="UserRegisterScreen"
+        component={UserRegisterScreen}
         options={{
-          title: 'Register', //Set Header Title
+          title: '사용자 회원가입', //Set Header Title
           headerStyle: {
-            backgroundColor: '#307ecc', //Set Header color
+            backgroundColor: '#084B8A', //Set Header color
           },
           headerTintColor: '#fff', //Set Header text color
           headerTitleStyle: {
-            fontWeight: 'bold', //Set Header text style
+            fontWeight: 'light', //Set Header text style
           },
         }}
       />
+      <Stack.Screen
+          name="DoctorRegisterScreen"
+          component={DoctorRegisterScreen}
+          options={{
+            title: '수의사 회원가입', //Set Header Title
+            headerStyle: {
+              backgroundColor: '#084B8A', //Set Header color
+            },
+            headerTintColor: '#fff', //Set Header text color
+            headerTitleStyle: {
+              fontWeight: 'light', //Set Header text style
+            },
+          }}
+        />
     </Stack.Navigator>
   );
 };

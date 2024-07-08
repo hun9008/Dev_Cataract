@@ -21,27 +21,11 @@ const HomeScreen = () => {
               textAlign: 'center',
               marginBottom: 16,
             }}>
-            Example of Splash, Login and Sign Up in React Native
+            Home Screen
             {'\n\n'}
-            This is the Home Screen
+            수정해야함
           </Text>
         </View>
-        <Text
-          style={{
-            fontSize: 18,
-            textAlign: 'center',
-            color: 'grey',
-          }}>
-          Splash, Login and Register Example{'\n'}React Native
-        </Text>
-        <Text
-          style={{
-            fontSize: 16,
-            textAlign: 'center',
-            color: 'grey',
-          }}>
-          www.aboutreact.com
-        </Text>
       </View>
     </SafeAreaView>
   );

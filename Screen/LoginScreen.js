@@ -131,7 +131,7 @@ const LoginScreen = ({ navigation }) => {
             </TouchableOpacity>
             <Text
               style={styles.registerTextStyle}
-              onPress={() => navigation.navigate('RegisterScreen')}>
+              onPress={() => navigation.navigate('SelectDoctorUser')}>
               회원가입하기
             </Text>
           </KeyboardAvoidingView>
