@@ -1,6 +1,10 @@
 from fastapi import APIRouter
 from fastapi import File
 from fastapi import HTTPException, status, Depends, Request
+from starlette.responses import JSONResponse
+from models.inference_ViT import preprocess_image, predict
+from schema.request_schema import ImageRequest
+from PIL import Image
 from models.user import User
 from models.doctor import Doctor
 from models.user import Pet
@@ -9,6 +13,7 @@ from schema.schemas import list_serial
 from bson import ObjectId
 from typing import List
 import base64
+import io
 
 router = APIRouter()
 
@@ -184,3 +189,18 @@ async def delete_comment(comment_id : str):
     if collection_name_comment.find_one({"_id": ObjectId(comment_id)}):
         collection_name_comment.delete_one({"_id": ObjectId(comment_id)})
     return comment_id
+
+
+@router.post("/predict")
+async def predict_endpoint(request: ImageRequest):
+    try:
+        image_data = base64.b64decode(request.image_base64)
+        image = Image.open(io.BytesIO(image_data)).convert("RGB")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid image data")
+
+    image_array = preprocess_image(image)
+    
+    predicted_class, confidence = predict(image_array)
+    
+    return JSONResponse(content={"predicted_class": int(predicted_class), "confidence": confidence})
