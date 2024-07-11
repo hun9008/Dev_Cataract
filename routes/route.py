@@ -15,6 +15,8 @@ from PIL import Image
 
 router = APIRouter()
 
+# print("py_version : ", python.__version__)
+
 @router.post("/inference")
 async def inference(img: dict):
     encoding_img = img["img"]

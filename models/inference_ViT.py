@@ -18,7 +18,6 @@ from tensorflow.keras.utils import to_categorical
 from sklearn.metrics import confusion_matrix, classification_report
 from tensorflow.keras.callbacks import EarlyStopping
 
-TE07
 # model_path = os.path.abspath('./models/weights/ViT.h5')
 # model = load_model(model_path)
 # print(model.summary())
