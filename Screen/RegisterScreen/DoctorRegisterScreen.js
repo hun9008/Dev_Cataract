@@ -18,7 +18,8 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Loader from '../Components/Loader';
 
-const DoctorRegisterScreen = (props) => {
+const DoctorRegisterScreen = ({ route }) => {
+  const { doctortype } = route.params;
   const [doctorName, setdoctorName] = useState('');
   const [doctorNickname, setdoctorNickname] = useState('');
   const [doctorEmail, setdoctorEmail] = useState('');
@@ -27,6 +28,7 @@ const DoctorRegisterScreen = (props) => {
   const [doctorHospital, setdoctorHospital] = useState('');
   const [loading, setLoading] = useState(false);
   const [errortext, setErrortext] = useState('');
+
   const [
     isRegistraionSuccess,
     setIsRegistraionSuccess
@@ -66,27 +68,43 @@ const DoctorRegisterScreen = (props) => {
     //Show Loader
     setLoading(true);
     /*
-        "d_email": "drsmith@gmail.com",
-        "d_pwd": "securepass",
-        "d_PN": "010-9876-5432",
-        "d_name": "Dr. Smith",
-        "d_nickname": "smithy",
-        "d_hospital": "General Hospital"
+        // Not Null
+        "_id": "000000000000000",
+        "type": "doctor",
+        "email": "blablabla@gmail.com",
+        "pwd": "test1234",
+        "phone_num": "010-1234-5678",
+        "name": "hun",
+        "nickname": "PhD",
+        "sex": "Male",
+        "birth": "2001-01-01",
+
+        // User
+        "pet": [{
+                "p_name": "TT",
+                "p_type": "Dog",
+                "p_color": "Black",
+                "p_age": "5",
+        }]
+
+        // Doctor
+        "hospital": "zerozeroHosp"
      */
     const dataToSend = {
-      d_email: doctorEmail,
-      d_pwd: doctorPassword,
-      d_PN: doctorPN,
-      d_name: doctorName,
-      d_nickname: doctorNickname,
-      d_hospital: doctorHospital,
+      type : doctortype,
+      email: doctorEmail,
+      pwd: doctorPassword,
+      phone_num: doctorPN,
+      name: doctorName,
+      nickname: doctorNickname,
+      hospital: doctorHospital,
     };
-    console.log(JSON.stringify(dataToSend, ["d_email", "d_pwd", "d_PN", "d_name", "d_nickname", "d_hospital"]));
+    console.log(JSON.stringify(dataToSend, ["type", "email", "pwd", "phone_num", "name", "nickname", "hospital"]));
 
 
     fetch('http://118.34.163.142:8000/account/signup/doctor', {
       method: 'POST',
-      body: JSON.stringify(dataToSend, ["d_email", "d_pwd", "d_PN", "d_name", "d_nickname", "d_hospital"]),
+      body: JSON.stringify(dataToSend, ["type", "email", "pwd", "phone_num", "name", "nickname", "hospital"]),
       headers: {
         //Header Defination
         'Content-Type':

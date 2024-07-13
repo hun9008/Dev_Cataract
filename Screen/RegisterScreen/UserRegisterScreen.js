@@ -13,12 +13,22 @@ import {
   Keyboard,
   TouchableOpacity,
   ScrollView,
+  Button,
 } from 'react-native';
 
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CheckBox from '@react-native-community/checkbox';
+import DatePicker from 'react-native-date-picker';
+import WheelPicker from 'react-native-wheely';
 import Loader from '../Components/Loader';
 
-const UserRegisterScreen = (props) => {
+const years = Array.from({ length: 125 }, (_, i) => (1900 + i).toString()); // 1900부터 2024까지의 배열 생성
+const months = Array.from({ length: 12 }, (_, i) => (i + 1).toString());
+const days = Array.from({ length: 31 }, (_, i) => (i + 1).toString());
+
+const UserRegisterScreen = ({ route }) => {
+  const { usertype } = route.params;
   const [userName, setUserName] = useState('');
   const [userNickname, setUserNickname] = useState('');
   const [userEmail, setUserEmail] = useState('');
@@ -28,10 +38,17 @@ const UserRegisterScreen = (props) => {
   const [userBirth, setUserBirth] = useState('');
   const [loading, setLoading] = useState(false);
   const [errortext, setErrortext] = useState('');
+  const [toggleCheckBox, setToggleCheckBox] = useState(false);
+  const [date, setDate] = useState(new Date());
+  const [open, setOpen] = useState(false);
   const [
     isRegistraionSuccess,
     setIsRegistraionSuccess
   ] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedYear, setSelectedYear] = useState('2024'); // 선택된 연도 상태
+  const [selectedMonth, setSelectedMonth] = useState('1'); // 선택된 월 상태
+  const [selectedDay, setSelectedDay] = useState('1'); // 선택된 일 상태
 
   const emailInputRef = createRef();
   const passwordInputRef = createRef();
@@ -67,22 +84,46 @@ const UserRegisterScreen = (props) => {
     if (!userBirth) {
         alert('생년월일을 입력해주세요.');
     }
+    /*
+        // Not Null
+        "_id": "000000000000000",
+        "type": "doctor",
+        "email": "blablabla@gmail.com",
+        "pwd": "test1234",
+        "phone_num": "010-1234-5678",
+        "name": "hun",
+        "nickname": "PhD",
+        "sex": "Male",
+        "birth": "2001-01-01",
+
+        // User
+        "pet": [{
+                "p_name": "TT",
+                "p_type": "Dog",
+                "p_color": "Black",
+                "p_age": "5",
+        }]
+
+        // Doctor
+        "hospital": "zerozeroHosp"
+     */
     //Show Loader
     setLoading(true);
    const dataToSend = {
-     u_email: userEmail,
-     u_pwd: userPassword,
-     u_PN: userPN,
-     u_birth: userBirth,
-     u_sex: userSex,
-     u_name: userName,
-     u_nickname: userNickname,
+     type : usertype,
+     email: userEmail,
+     pwd: userPassword,
+     phone_num: userPN,
+     birth: `${userBirth.year}-${userBirth.month}-${userBirth.day}`,
+     sex: userSex,
+     name: userName,
+     nickname: userNickname,
    };
     console.log(JSON.stringify(dataToSend));
 
     fetch('http://118.34.163.142:8000/account/signup/user', {
       method: 'POST',
-      body: JSON.stringify(dataToSend, ["u_email", "u_pwd", "u_PN", "u_birth", "u_sex", "u_name", "u_nickname"]),
+      body: JSON.stringify(dataToSend, ["type", "email", "pwd", "phone_num", "name", "nickname", "sex", "birth"]),
       headers: {
         //Header Defination
         'Content-Type':
@@ -174,6 +215,10 @@ const UserRegisterScreen = (props) => {
               placeholder="Enter Email"
               placeholderTextColor="#8b9cb5"
               keyboardType="email-address"
+              rules={{
+                  required: true,
+                  pattern: /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,25}$/
+              }}
               ref={emailInputRef}
               returnKeyType="next"
               onSubmitEditing={() =>
@@ -232,40 +277,42 @@ const UserRegisterScreen = (props) => {
               blurOnSubmit={false}
             />
           </View>
-          <View style={styles.SectionStyle}>
-              <TextInput
-                style={styles.inputStyle}
-                onChangeText={(UserSex) =>
-                  setUserSex(UserSex)
-                }
-                underlineColorAndroid="#f000"
-                placeholder="Enter Sex ex) Male or Female"
-                placeholderTextColor="#8b9cb5"
-                placeholderTextColor="#8b9cb5"
-                autoCapitalize="sentences"
-                returnKeyType="next"
-                onSubmitEditing={() =>
-                  birthInputRef.current &&
-                  birthInputRef.current.focus()
-                }
-                blurOnSubmit={false}
-              />
+           <View style={styles.birthPickerContainer}>
+             <WheelPicker
+                 style={styles.wheelPicker}
+                 selectedIndex={years.indexOf(selectedYear)}
+                 options={years}
+                 onChange={(index) => setSelectedYear(years[index])}
+               />
+               <WheelPicker
+                 style={styles.wheelPicker}
+                 selectedIndex={months.indexOf(selectedMonth)}
+                 options={months}
+                 onChange={(index) => setSelectedMonth(months[index])}
+               />
+               <WheelPicker
+                 style={styles.wheelPicker}
+                 selectedIndex={days.indexOf(selectedDay)}
+                 options={days}
+                 onChange={(index) => setSelectedDay(days[index])}
+               />
            </View>
-           <View style={styles.SectionStyle}>
-            <TextInput
-              style={styles.inputStyle}
-              onChangeText={(UserBirth) =>
-                setUserBirth(UserBirth)
-              }
-              underlineColorAndroid="#f000"
-              placeholder="Enter Birth ex) xxxx-xx-xx"
-              placeholderTextColor="#8b9cb5"
-              placeholderTextColor="#8b9cb5"
-              autoCapitalize="sentences"
-              returnKeyType="next"
-              blurOnSubmit={false}
-            />
-          </View>
+          <View style={styles.SectionStyle}>
+              <CheckBox
+                style={styles.checkBox}
+                disabled={false}
+                value={userSex === 'Male'}
+                onValueChange={() => setUserSex('Male')}
+              />
+              <Text style={styles.label}>Male</Text>
+              <CheckBox
+                style={styles.checkBox}
+                disabled={false}
+                value={userSex === 'Female'}
+                onValueChange={() => setUserSex('Female')}
+              />
+              <Text style={styles.label}>Female</Text>
+            </View>
           {errortext != '' ? (
             <Text style={styles.errorTextStyle}>
               {errortext}
@@ -331,4 +378,31 @@ const styles = StyleSheet.create({
     fontSize: 18,
     padding: 30,
   },
+  checkBoxContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginLeft: 35,
+      marginRight: 35,
+      marginTop: 20,
+    },
+    checkBox: {
+      marginRight: 5,
+    },
+    label: {
+      marginRight: 10,
+      marginTop: 5,
+      fontSize: 15,
+      color: '#8b9cb5',
+    },
+    birthPickerContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginLeft: 80,
+        marginRight: 80,
+        marginTop: 20,
+      },
+      wheelPicker: {
+        width: 80,
+        height: 150,
+      },
 });

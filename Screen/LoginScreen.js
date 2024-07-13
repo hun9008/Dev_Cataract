@@ -37,7 +37,7 @@ const LoginScreen = ({ navigation }) => {
     let dataToSend = { u_email: userEmail, u_pwd: userPassword };
     console.log('Data to send:', dataToSend); // 수정된 부분: 디버깅 출력 추가
 
-    fetch('http://mint.hunian.site:8000/account/login/user', {
+    fetch('http://118.34.163.142:8000/account/login/user', {
       method: 'POST',
       body: JSON.stringify(dataToSend),
       headers: {
