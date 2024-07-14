@@ -7,7 +7,7 @@ from PIL import Image
 from models.user import User
 from models.doctor import Doctor
 from models.user import Pet
-from config.database import collection_name_user, collection_name_doctor, collection_name_post, collection_name_image, collection_name_comment, collection_name_pet,fs
+from config.database import collection_name_user, collection_name_post, collection_name_image, collection_name_comment, collection_name_user_post_like, collection_name_user_comment_like,fs
 from schema.schemas import list_serial
 from bson import ObjectId
 from typing import List
@@ -101,9 +101,9 @@ async def login_user(request: dict):
 ## DELETE
 
 @router.delete("/account/delete/user")
-async def delete_user(u_email: str):
-    collection_name_user.delete_one({"u_email": u_email})
-    return u_email
+async def delete_user(user : dict):
+    collection_name_user.delete_one({"u_email": user["u_email"]})
+    return user
 
 #@router.delete("/account/delete/doctor")
 #async def delete_doctor(d_email: str):
@@ -129,9 +129,7 @@ async def post_pet(user_id: str, pet: dict):
         "p_color": pet["p_color"],
         "p_age": pet["p_age"]
     }
-    inserted_id = collection_name_pet.insert_one(pet_data).inserted_id
-    pet["_id"] = str(inserted_id)
-    collection_name_user.update_one({"_id": ObjectId(user_id)}, {"$push": {"pet": pet}})
+    collection_name_user.update_one({"_id": ObjectId(user_id)}, {"$push": {"pet": pet_data}})
     return pet
 
 
@@ -149,7 +147,7 @@ async def get_feed(u_id: str):
 @router.post("/posting/feed")
 async def post_feed(post: dict):
     image_ids = []
-    for image_data in post["images"]:
+    for image_data in post["im_list"]:
         image_bytes = base64.b64decode(image_data)
         image_id = fs.put(image_bytes)
         image_record = {
@@ -162,7 +160,7 @@ async def post_feed(post: dict):
     post_data = {
         "po_detail": post["po_detail"],
         "user_id": post["user_id"],
-        "im_ids": image_ids
+        "im_list": image_ids
     }
     inserted_id = collection_name_post.insert_one(post_data).inserted_id
     return {"_id": str(inserted_id)}
@@ -189,8 +187,57 @@ async def get_comment(post_id: str):
     comments = list_serial(collection_name_comment.find({"post_id": post_id}))
     return comments
 
-@router.delete("/posting/feed/{post_id}/comment")
+@router.delete("/posting/feed/{post_id}/comment/{comment_id}")
 async def delete_comment(comment_id : str):
     if collection_name_comment.find_one({"_id": ObjectId(comment_id)}):
         collection_name_comment.delete_one({"_id": ObjectId(comment_id)})
     return comment_id
+
+## like
+@router.post("/posting/feed/{post_id}/like")
+async def post_like(post_id: str, user_post_like: dict):
+    user_post_like_data = {
+        "user_id": user_post_like["user_id"],
+        "po_id": post_id
+    }
+    post = collection_name_post.find_one({"_id": ObjectId(post_id)})
+    for like in post["like_list"]:
+        if like["user_id"] != user_post_like["user_id"]:
+            post_like_id = collection_name_user_post_like.insert_one(user_post_like_data).inserted_id
+            user_post_like["_id"] = str(post_like_id)
+    return user_post_like
+
+@router.post("/posting/feed/{post_id}/comment/{comment_id}/like")
+async def post_comment_like(comment_id: str, user_comment_like: dict):
+    user_comment_like_data = {
+        "user_id": user_comment_like["user_id"],
+        "co_id": comment_id
+    }
+    comment = collection_name_comment.find_one({"_id": ObjectId(comment_id)})
+    for like in comment["like_list"]:
+        if like["user_id"] != user_comment_like["user_id"]:
+            comment_like_id = collection_name_user_comment_like.insert_one(user_comment_like_data).inserted_id
+            user_comment_like["_id"] = str(comment_like_id)
+    return user_comment_like
+
+@router.get("/posting/feed/{post_id}/like")
+async def get_like(post_id: str):
+    post = collection_name_post.find_one({"_id": ObjectId(post_id)})
+    like_list = post["like_list"]
+    return like_list
+
+@router.get("/posting/feed/{post_id}/comment/{comment_id}/like")
+async def get_comment_like(comment_id: str):
+    comment = collection_name_comment.find_one({"_id": ObjectId(comment_id)})
+    like_list = comment["like_list"]
+    return like_list
+
+@router.delete("/posting/feed/{post_id}/like")
+async def post_delete_like(post_id : str, user_post_like: dict):
+    collection_name_user_post_like.delete_one({"po_id": post_id, "user_id": user_post_like["user_id"]})
+    return user_post_like
+    
+@router.delete("/posting/feed/{post_id}/comment/{comment_id}/like")
+async def post_delete_comment_like(comment_id : str, user_comment_like: dict):
+    collection_name_user_comment_like.delete_one({"co_id": comment_id, "user_id": user_comment_like["user_id"]})
+    return user_comment_like

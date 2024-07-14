@@ -3,14 +3,16 @@ from typing import List
     
 class Image(BaseModel):
     filename : str
+    image_id : str
     
     
 class UserPostLike(BaseModel):
     user_id : str
     po_id : str
     
+    
 class UserCommentLike(BaseModel):
-    u_id : str
+    user_id : str
     co_id : str
 
 
@@ -18,8 +20,10 @@ class Comment(BaseModel):
     co_detail : str
     user_id : str
     post_id : str
+    like_list : List[UserCommentLike] = []
     
 class Post(BaseModel):
-    user_id : str
     po_detail : str
-    im_ids : List[Image] = []
+    im_list : List[Image] = []
+    like_list : List[UserPostLike] = []
+    
