@@ -2,7 +2,6 @@ from fastapi import APIRouter
 from fastapi import File
 from fastapi import HTTPException, status, Depends, Request
 from starlette.responses import JSONResponse
-from models.inference_ViT import preprocess_image, predict
 from schema.request_schema import ImageRequest
 from PIL import Image
 from models.user import User
@@ -30,7 +29,11 @@ async def get_users():
 
 @router.get("/account/all_doctors")
 async def get_doctors():
-    doctors = list_serial(collection_name_doctor.find())
+    users = list_serial(collection_name_user.find())
+    doctors = []
+    for user in users:
+        if user["d_hospital"] != "":
+            doctors.append(user)
     return doctors
     # raw_doctors = collection_name_doctor.find()
     # doctors = [transform_to_class(doctor) for doctor in raw_doctors]
@@ -51,23 +54,25 @@ async def post_user(user: dict):
         "u_nickname": user["u_nickname"],
         "pet": [pet for pet in user.get("pet", [])]
     }
+    if user["d_hospital"] is not None:
+        user_data["d_hospital"] = user["d_hospital"]
     inserted_id = collection_name_user.insert_one(user_data).inserted_id
     user["_id"] = str(inserted_id)
     return user
 
-@router.post("/account/signup/doctor")
-async def post_doctor(doctor: dict):
-    doctor_data = {
-        "d_email": doctor["d_email"],
-        "d_pwd": doctor["d_pwd"],
-        "d_PN": doctor["d_PN"],
-        "d_name": doctor["d_name"],
-        "d_nickname": doctor["d_nickname"],
-        "d_hospital": doctor["d_hospital"]
-    }
-    inserted_id = collection_name_doctor.insert_one(doctor_data).inserted_id
-    doctor["_id"] = str(inserted_id)
-    return doctor
+#@router.post("/account/signup/doctor")
+#async def post_doctor(doctor: dict):
+    #doctor_data = {
+        #"d_email": doctor["d_email"],
+        #"d_pwd": doctor["d_pwd"],
+        #"d_PN": doctor["d_PN"],
+        #"d_name": doctor["d_name"],
+        #"d_nickname": doctor["d_nickname"],
+        #"d_hospital": doctor["d_hospital"]
+    #}
+    #inserted_id = collection_name_doctor.insert_one(doctor_data).inserted_id
+    #doctor["_id"] = str(inserted_id)
+    #return doctor
 
 ## LOGIN
 
@@ -82,16 +87,16 @@ async def login_user(request: dict):
     else:
         raise HTTPException(status_code=404, detail="User not found or password incorrect")
 
-@router.post("/account/login/doctor")
-async def login_doctor(request: dict):
-    d_email = request["d_email"]
-    d_pwd = request["d_pwd"]
-    doctor = collection_name_doctor.find_one({"d_email": d_email, "d_pwd": d_pwd})
-    if doctor:
-        doctor["_id"] = str(doctor["_id"])
-        return doctor
-    else:
-        raise HTTPException(status_code=404, detail="Doctor not found or password incorrect")
+#@router.post("/account/login/doctor")
+#async def login_doctor(request: dict):
+#    d_email = request["d_email"]
+#    d_pwd = request["d_pwd"]
+#    doctor = collection_name_doctor.find_one({"d_email": d_email, "d_pwd": d_pwd})
+#    if doctor:
+#        doctor["_id"] = str(doctor["_id"])
+#        return doctor
+#    else:
+#        raise HTTPException(status_code=404, detail="Doctor not found or password incorrect")
 
 ## DELETE
 
@@ -100,20 +105,20 @@ async def delete_user(u_email: str):
     collection_name_user.delete_one({"u_email": u_email})
     return u_email
 
-@router.delete("/account/delete/doctor")
-async def delete_doctor(d_email: str):
-    collection_name_doctor.delete_one({"d_email": d_email})
-    return d_email
+#@router.delete("/account/delete/doctor")
+#async def delete_doctor(d_email: str):
+#    collection_name_doctor.delete_one({"d_email": d_email})
+#    return d_email
 
 @router.delete("/account/clear/user")
 async def clear_user():
     collection_name_user.delete_many({})
     return "All users are deleted"
 
-@router.delete("/account/clear/doctor")
-async def clear_doctor():
-    collection_name_doctor.delete_many({})
-    return "All doctors are deleted"
+#@router.delete("/account/clear/doctor")
+#async def clear_doctor():
+#    collection_name_doctor.delete_many({})
+#    return "All doctors are deleted"
 
 # add pet
 @router.post("/account/user/{user_id}/pet")
@@ -189,18 +194,3 @@ async def delete_comment(comment_id : str):
     if collection_name_comment.find_one({"_id": ObjectId(comment_id)}):
         collection_name_comment.delete_one({"_id": ObjectId(comment_id)})
     return comment_id
-
-
-@router.post("/predict")
-async def predict_endpoint(request: ImageRequest):
-    try:
-        image_data = base64.b64decode(request.image_base64)
-        image = Image.open(io.BytesIO(image_data)).convert("RGB")
-    except Exception as e:
-        raise HTTPException(status_code=400, detail="Invalid image data")
-
-    image_array = preprocess_image(image)
-    
-    predicted_class, confidence = predict(image_array)
-    
-    return JSONResponse(content={"predicted_class": int(predicted_class), "confidence": confidence})

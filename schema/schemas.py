@@ -22,20 +22,11 @@ def individual_serial(user: dict) -> dict:
             "u_sex": user["u_sex"],
             "u_name": user["u_name"],
             "u_nickname": user["u_nickname"],
-            "pet": pets_data
-        }
-    elif "d_email" in user:
-        return {
-            "_id": str(user["_id"]),
-            "d_email": user["d_email"],
-            "d_pwd": user["d_pwd"],
-            "d_PN": user["d_PN"],
-            "d_name": user["d_name"],
-            "d_nickname": user["d_nickname"],
+            "pet": pets_data,
             "d_hospital": user["d_hospital"]
         }
     else:
         raise ValueError("Unsupported type for serialization")
 
-def list_serial(users: List[Union[User, Doctor]]) -> List[dict]:
+def list_serial(users: List[Union[User]]) -> List[dict]:
     return [individual_serial(user) for user in users]

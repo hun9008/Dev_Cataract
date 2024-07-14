@@ -17,3 +17,5 @@ class User(BaseModel):
     u_name: str
     u_nickname: str
     pet: List[Pet] = []
+    # docter
+    d_hospital: str
