@@ -56,3 +56,9 @@ pip freeze > requirements.txt
 }
 
 ```
+
+
+overripe_data shape: (2000, 224, 224, 3) : 0
+no_data shape: (2000, 224, 224, 3) : 1
+mature_data shape: (2000, 224, 224, 3) : 2
+incipient_data shape: (2000, 224, 224, 3) : 3

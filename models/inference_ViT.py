@@ -26,9 +26,10 @@ def vit_inference(encoding_img : str) -> dict:
     # plt.imshow(img)
     # print(io.BytesIO(base64.b64decode(encoding_img)))
     img = Image.open(io.BytesIO(base64.b64decode(encoding_img)))
+    print("img type : ",type(img))
     # data = cv2.imread(img)
     data = np.array(img)
-    print("data type : ",type(data))
+
     data = cv2.cvtColor(data, cv2.COLOR_BGR2RGB)
     gray = cv2.cvtColor(data, cv2.COLOR_RGB2GRAY)
 
@@ -81,6 +82,9 @@ def vit_inference(encoding_img : str) -> dict:
     print("blur type : ",type(blurred))
     print("blur shape : ",blurred.shape)
 
+    blurred = blurred / 255.0
+    blurred = blurred - np.mean(blurred)
+
 
 
     vit_model = vit.vit_b32(
@@ -116,15 +120,21 @@ def vit_inference(encoding_img : str) -> dict:
     blurred = np.reshape(blurred, (-1, 224, 224, 3))
     print("Final input shape for prediction:", blurred.shape)
     predictions = model.predict(blurred)
-    predicted_class = int(np.argmax(predictions[0]))
+    print("prediction : ", predictions)
+    predicted_class_num = int(np.argmax(predictions[0]))
     confidence = float(np.max(predictions[0]))
 
+    classes = ['overripe', 'no', 'mature', 'incipient']
+
+    predicted_class = classes[predicted_class_num]
+
     print("predicted_class : ", predicted_class)
-    print("confidence : ", confidence)
+    print("probability : ", confidence)
 
     pred_dict = {
         "predicted_class" : predicted_class,
-        "confidence" : confidence
+        "probability" : confidence,
+        "all_predictions" : predictions,
     }
 
     return pred_dict
