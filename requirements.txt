@@ -73,7 +73,6 @@ tensorflow==2.15.0
 tensorflow-addons==0.23.0
 tensorflow-estimator==2.15.0
 tensorflow-io-gcs-filesystem==0.37.1
-tensorflow-macos==2.15.0
 termcolor==2.4.0
 threadpoolctl==3.5.0
 typeguard==2.13.3
