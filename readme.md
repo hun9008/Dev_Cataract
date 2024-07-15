@@ -19,7 +19,7 @@ encoding된 이미지를 {"img" : "encoding_img"} 형식으로 POST요청 보내
 // Docker 이미지 가져와서 실행
 sudo docker pull yonghune/cataract-app:0.1
 sudo docker images
-sudo docker run -d -p 8800:8800 yonghune/cataract-app:0.1
+sudo docker run -d -p 8001:8001 yonghune/cataract-app:0.1
 sudo docker ps
 ```
 
@@ -27,7 +27,7 @@ sudo docker ps
 
 ```
 docker build -t <이미지_이름>:<태그> .
-docker run -d -p 8800:8800 cataract-app:latest
+docker run -d -p 8001:8001 cataract-app:latest
 docker tag cataract-app yonghune/cataract-app:0.2
 docker push yonghune/cataract-app:0.2
 ```
