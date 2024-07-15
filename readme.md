@@ -62,3 +62,13 @@ overripe_data shape: (2000, 224, 224, 3) : 0
 no_data shape: (2000, 224, 224, 3) : 1
 mature_data shape: (2000, 224, 224, 3) : 2
 incipient_data shape: (2000, 224, 224, 3) : 3
+
+## nginx activate
+
+```
+sudo ln -s /etc/nginx/sites-available/hunian /etc/nginx/sites-enabled/
+```
+
+```
+sudo unlink /etc/nginx/sites-enabled/default
+```
