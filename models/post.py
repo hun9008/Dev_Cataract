@@ -32,5 +32,5 @@ class Post(BaseModel):
     po_detail : str
     im_list : List[Image] = []
     like_list : List[UserPostLike] = []
-    # predict : dict
+    predict : Predict
     

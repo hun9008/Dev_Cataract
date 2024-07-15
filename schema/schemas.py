@@ -13,7 +13,7 @@ def individual_serial(data: dict) -> dict:
                 "p_age": pet["p_age"]
             }
             pets_data.append(pet_dict)
-        return {
+        result = {
             "_id": str(data["_id"]),
             "u_email": data["u_email"],
             "u_pwd": data["u_pwd"],
@@ -22,9 +22,14 @@ def individual_serial(data: dict) -> dict:
             "u_sex": data["u_sex"],
             "u_name": data["u_name"],
             "u_nickname": data["u_nickname"],
-            "pet": pets_data,
-            "d_hospital": data["d_hospital"]
+            "pet": pets_data
         }
+        # d_hospital 필드가 있는 경우에만 추가
+        if "d_hospital" in data:
+            result["d_hospital"] = data["d_hospital"]
+        
+        return result
+    
     elif "po_detail" in data:
         images_data = []
         for image in data.get("im_list", []):

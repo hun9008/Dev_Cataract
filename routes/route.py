@@ -7,7 +7,7 @@ from PIL import Image
 from models.user import User
 from models.doctor import Doctor
 from models.user import Pet
-from config.database import collection_name_user, collection_name_post, collection_name_image, collection_name_comment, collection_name_user_post_like, collection_name_user_comment_like,fs
+from config.database import collection_name_user, collection_name_post, collection_name_image, collection_name_comment, collection_name_user_post_like, collection_name_user_comment_like, collection_name_predict, fs
 from schema.schemas import list_serial
 from bson import ObjectId
 from typing import List
@@ -32,7 +32,7 @@ async def get_doctors():
     users = list_serial(collection_name_user.find())
     doctors = []
     for user in users:
-        if user["d_hospital"] != "":
+        if "d_hospital" in user:
             doctors.append(user)
     return doctors
     # raw_doctors = collection_name_doctor.find()
@@ -54,8 +54,11 @@ async def post_user(user: dict):
         "u_nickname": user["u_nickname"],
         "pet": [pet for pet in user.get("pet", [])]
     }
-    if user["d_hospital"] is not None:
+    if user["d_hospital"] is not None:  # 의사일 경우
         user_data["d_hospital"] = user["d_hospital"]
+        user_data["role"] = "doctor"
+    else:
+        user_data["role"] = "user"
     inserted_id = collection_name_user.insert_one(user_data).inserted_id
     user["_id"] = str(inserted_id)
     return user
@@ -86,19 +89,6 @@ async def login_user(request: dict):
         return user
     else:
         raise HTTPException(status_code=404, detail="User not found or password incorrect")
-
-#@router.post("/account/login/doctor")
-#async def login_doctor(request: dict):
-#    d_email = request["d_email"]
-#    d_pwd = request["d_pwd"]
-#    doctor = collection_name_doctor.find_one({"d_email": d_email, "d_pwd": d_pwd})
-#    if doctor:
-#        doctor["_id"] = str(doctor["_id"])
-#        return doctor
-#    else:
-#        raise HTTPException(status_code=404, detail="Doctor not found or password incorrect")
-
-## DELETE
 
 @router.delete("/account/delete/user")
 async def delete_user(user : dict):
@@ -160,7 +150,8 @@ async def post_feed(post: dict):
     post_data = {
         "po_detail": post["po_detail"],
         "user_id": post["user_id"],
-        "im_list": image_ids
+        "im_list": image_ids,   
+        "predict": post["predict"]  # 나중에 models 브랜치에 맞게 수정
     }
     inserted_id = collection_name_post.insert_one(post_data).inserted_id
     return {"_id": str(inserted_id)}
