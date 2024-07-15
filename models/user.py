@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 class Pet(BaseModel):
     p_name: str
@@ -17,3 +17,5 @@ class User(BaseModel):
     u_name: str
     u_nickname: str
     pet: List[Pet] = []
+    # docter
+    d_hospital: Optional[str] = None

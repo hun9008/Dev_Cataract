@@ -19,4 +19,5 @@ collection_name_comment = db["comment"]
 collection_name_image = db["image"]
 collection_name_user_post_like = db["user_post_like"]
 collection_name_user_comment_like = db["user_comment_like"]
+collection_name_predict = db["predict"]
 fs = GridFS(db)
