@@ -21,9 +21,16 @@ class Comment(BaseModel):
     user_id : str
     post_id : str
     like_list : List[UserCommentLike] = []
+
+class Predict(BaseModel):
+    image : Image
+    predicted_class : str
+    probability : float
+    all_predictions : List[float] = []
     
 class Post(BaseModel):
     po_detail : str
     im_list : List[Image] = []
     like_list : List[UserPostLike] = []
+    # predict : dict
     
