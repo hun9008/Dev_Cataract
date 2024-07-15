@@ -66,6 +66,10 @@ incipient_data shape: (2000, 224, 224, 3) : 3
 ## nginx activate
 
 ```
+sudo nano /etc/nginx/sites-available/hunian
+```
+
+```
 sudo ln -s /etc/nginx/sites-available/hunian /etc/nginx/sites-enabled/
 ```
 
