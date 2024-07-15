@@ -136,6 +136,6 @@ def vit_inference(encoding_img : str) -> dict:
         "probability" : confidence,
         "all_predictions" : predictions,
     }
-    
+
 
     return pred_dict

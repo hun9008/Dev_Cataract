@@ -12,6 +12,8 @@ from models.inference_ViT import vit_inference
 # from models.inference_ViT import inference
 import matplotlib.pyplot as plt
 from PIL import Image
+import json
+import numpy as np
 
 router = APIRouter()
 
@@ -30,7 +32,14 @@ async def inference(img: dict):
     
     output = vit_inference(encoding_img)
 
+    def numpy_converter(obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()  # numpy 배열을 리스트로 변환
+        raise TypeError("Object of type '%s' is not JSON serializable" % type(obj).__name__)
+
+    json_str = json.dumps(output, default=numpy_converter)
+
     # print(output)
 
-    return output
+    return json_str
     
