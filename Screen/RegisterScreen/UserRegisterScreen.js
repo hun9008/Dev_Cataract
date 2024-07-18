@@ -28,7 +28,7 @@ const months = Array.from({ length: 12 }, (_, i) => (i + 1).toString());
 const days = Array.from({ length: 31 }, (_, i) => (i + 1).toString());
 
 const UserRegisterScreen = ({ route }) => {
-  const { usertype } = route.params;
+  const usertype = route.params.type;
   const [userName, setUserName] = useState('');
   const [userNickname, setUserNickname] = useState('');
   const [userEmail, setUserEmail] = useState('');
@@ -36,6 +36,7 @@ const UserRegisterScreen = ({ route }) => {
   const [userPN, setUserPN] = useState('');
   const [userSex, setUserSex] = useState('');
   const [userBirth, setUserBirth] = useState('');
+  const [userPet, setUserPet] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errortext, setErrortext] = useState('');
   const [toggleCheckBox, setToggleCheckBox] = useState(false);
@@ -81,9 +82,6 @@ const UserRegisterScreen = ({ route }) => {
     if (!userSex) {
         alert('성별을 선택해주세요.');
     }
-    if (!userBirth) {
-        alert('생년월일을 입력해주세요.');
-    }
     /*
         // Not Null
         "_id": "000000000000000",
@@ -109,19 +107,21 @@ const UserRegisterScreen = ({ route }) => {
      */
     //Show Loader
     setLoading(true);
+
    const dataToSend = {
-     type : usertype,
-     email: userEmail,
-     pwd: userPassword,
-     phone_num: userPN,
-     birth: `${userBirth.year}-${userBirth.month}-${userBirth.day}`,
-     sex: userSex,
-     name: userName,
-     nickname: userNickname,
+     role : usertype,
+     u_email: userEmail,
+     u_pwd: userPassword,
+     u_PN: userPN,
+     u_birth: `${selectedYear}-${selectedMonth}-${selectedDay}`,
+     u_sex: userSex,
+     u_name: userName,
+     u_nickname: userNickname,
+     pet : userPet,
    };
     console.log(JSON.stringify(dataToSend));
 
-    fetch('http://118.34.163.142:8000/account/signup/user', {
+    fetch('http://cataractserver.hunian.site/account/signup/user', {
       method: 'POST',
       body: JSON.stringify(dataToSend, ["type", "email", "pwd", "phone_num", "name", "nickname", "sex", "birth"]),
       headers: {
@@ -267,7 +267,7 @@ const UserRegisterScreen = ({ route }) => {
               style={styles.inputStyle}
               onChangeText={(UserPN) => setUserPN(UserPN)}
               underlineColorAndroid="#f000"
-              placeholder="Enter Phone Number ex) 010-xxxx-xxxx"
+              placeholder="Enter Phone Number"
               placeholderTextColor="#8b9cb5"
               autoCapitalize="sentences"
               returnKeyType="next"
