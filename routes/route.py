@@ -39,5 +39,5 @@ async def inference(img: dict):
 
     json_str = json.dumps(output, default=numpy_converter)
 
-    return output
+    return json_str
     
