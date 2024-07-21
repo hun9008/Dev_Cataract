@@ -7,6 +7,7 @@ COPY . /app
 RUN pip install --upgrade pip
 RUN apt-get update && apt-get install -y python3-opencv
 RUN pip install opencv-python
+RUN pip install lime
 RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 8001

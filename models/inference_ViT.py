@@ -17,6 +17,42 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.utils import to_categorical
 from sklearn.metrics import confusion_matrix, classification_report
 from tensorflow.keras.callbacks import EarlyStopping
+from skimage.segmentation import mark_boundaries
+from lime import lime_image
+from tensorflow.keras.preprocessing import image
+
+def pred_function(image, model):
+    image = np.expand_dims(image, axis=0)
+    return model.predict(image)
+
+def visualize_image(image_data, model):
+
+    classes = ['overripe', 'no', 'mature', 'incipient']
+    explainer = lime_image.LimeImageExplainer()
+
+    image = image_data
+
+    # figure = plt.figure(figsize=(10, 10))
+
+    def model_predict(input_data):
+        return model.predict(input_data)
+
+
+    explanation = explainer.explain_instance(image, model_predict, top_labels=1, hide_color=0, num_samples=1000)
+    temp, mask = explanation.get_image_and_mask(explanation.top_labels[0], positive_only=False, num_features=5, hide_rest=False)
+    marked_image = mark_boundaries(temp / 2 + 0.5, mask)
+
+    # plt.imshow(marked_image)
+    # plt.title(classes[explanation.top_labels[0]])
+  
+    # plt.tight_layout()
+    # plt.show()
+
+    encoding_img = base64.b64encode(marked_image).decode('utf-8')
+    print("encoding_img : ", encoding_img)
+    print("encoding type : ", type(encoding_img))
+    return encoding_img
+
 
 # model_path = os.path.abspath('./models/weights/ViT.h5')
 # model = load_model(model_path)
@@ -117,6 +153,7 @@ def vit_inference(encoding_img : str) -> dict:
     
     # preprocessed = preprocess_image(image_array)
     blurred = np.expand_dims(blurred, axis=0)
+    lime_image = blurred
     blurred = np.reshape(blurred, (-1, 224, 224, 3))
     print("Final input shape for prediction:", blurred.shape)
     predictions = model.predict(blurred)
@@ -128,6 +165,10 @@ def vit_inference(encoding_img : str) -> dict:
 
     predicted_class = classes[predicted_class_num]
 
+    grayed_lime = lime_image[0]
+    print("lime image shape : ", grayed_lime.shape)
+    lime_output = visualize_image(grayed_lime, model)
+
     print("predicted_class : ", predicted_class)
     print("probability : ", confidence)
 
@@ -135,7 +176,9 @@ def vit_inference(encoding_img : str) -> dict:
         "predicted_class" : predicted_class,
         "probability" : confidence,
         "all_predictions" : predictions,
+        "lime" : lime_output
     }
+
 
 
     return pred_dict
