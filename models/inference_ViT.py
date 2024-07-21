@@ -48,7 +48,12 @@ def visualize_image(image_data, model):
     # plt.tight_layout()
     # plt.show()
 
-    encoding_img = base64.b64encode(marked_image).decode('utf-8')
+    img = Image.fromarray((marked_image * 255).astype(np.uint8))
+    buffer = io.BytesIO()
+    img.save(buffer, format="PNG")
+    byte_data = buffer.getvalue()
+
+    encoding_img = base64.b64encode(byte_data).decode('utf-8')
     print("encoding_img : ", encoding_img)
     print("encoding type : ", type(encoding_img))
     return encoding_img

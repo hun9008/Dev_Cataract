@@ -30,14 +30,30 @@ async def inference(img: dict):
     # output = preprocess_image(encoding_img)
     # print(output)
     
-    output = vit_inference(encoding_img)
+    output_dict = vit_inference(encoding_img)
+    print("output_dict type : ", type(output_dict))
+
+
 
     def numpy_converter(obj):
         if isinstance(obj, np.ndarray):
             return obj.tolist()  # numpy 배열을 리스트로 변환
         raise TypeError("Object of type '%s' is not JSON serializable" % type(obj).__name__)
 
-    json_str = json.dumps(output, default=numpy_converter)
+    # json_str = json.dumps(output, default=numpy_converter)
+    
+    # ndarray to string
+    all_predictions_str = output_dict["all_predictions"].tolist()
+    print("all_predictions_str : ", all_predictions_str)
+    print("type : ", type(all_predictions_str))
 
-    return json_str
+    output = {
+        "predicted_class" : output_dict["predicted_class"],
+        "probability" : output_dict["probability"],
+        "all_probability" : all_predictions_str,
+        "lime" : output_dict["lime"]
+    }
+    print("output type : ", type(output))
+
+    return output
     
