@@ -14,6 +14,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Button,
+  FlatList,
 } from 'react-native';
 
 
@@ -33,6 +34,7 @@ const UserRegisterScreen = ({ route }) => {
   const [userNickname, setUserNickname] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
+  const [confirmPassword, setconfirmPassword] = useState('');
   const [userPN, setUserPN] = useState('');
   const [userSex, setUserSex] = useState('');
   const [userBirth, setUserBirth] = useState('');
@@ -51,12 +53,18 @@ const UserRegisterScreen = ({ route }) => {
   const [selectedMonth, setSelectedMonth] = useState('1'); // 선택된 월 상태
   const [selectedDay, setSelectedDay] = useState('1'); // 선택된 일 상태
 
+  const [hospital, sethospital] = useState('');
+
   const emailInputRef = createRef();
   const passwordInputRef = createRef();
   const nicknameInputRef = createRef();
   const pnInputRef = createRef();
   const sexInputRef = createRef();
   const birthInputRef = createRef();
+
+  const hasNotSameError = () => {
+      return userPassword !== confirmPassword;
+    };
 
   const handleSubmitButton = () => {
     setErrortext('');
@@ -118,12 +126,13 @@ const UserRegisterScreen = ({ route }) => {
      u_name: userName,
      u_nickname: userNickname,
      pet : userPet,
+     d_hospital : hospital,
    };
     console.log(JSON.stringify(dataToSend));
 
     fetch('http://cataractserver.hunian.site/account/signup/user', {
       method: 'POST',
-      body: JSON.stringify(dataToSend, ["type", "email", "pwd", "phone_num", "name", "nickname", "sex", "birth"]),
+      body: JSON.stringify(dataToSend, ["type", "u_email", "u_pwd", "U_PN", "name", "nickname", "sex", "birth", "d_hospital"]),
       headers: {
         //Header Defination
         'Content-Type':
@@ -247,6 +256,24 @@ const UserRegisterScreen = ({ route }) => {
               blurOnSubmit={false}
             />
           </View>
+          <View style={styles.SectionStyle}>
+              <TextInput
+                style={styles.inputStyle}
+                onChangeText={(confirmPassword) =>
+                 setconfirmPassword(confirmPassword)
+                }
+                underlineColorAndroid="#f000"
+                placeholder="Confirm Password"
+                placeholderTextColor="#8b9cb5"
+                secureTextEntry={true}
+                blurOnSubmit={false}
+              />
+              {hasNotSameError() ? (
+                <Text style={styles.errorTextStyle}>
+                  입력한 비밀번호랑 일치하지 않지롱
+                </Text>
+              ) : null}
+            </View>
             <View style={styles.SectionStyle}>
               <TextInput
                 style={styles.inputStyle}
@@ -402,7 +429,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
       },
       wheelPicker: {
-        width: 80,
-        height: 150,
+        width: 20,
+        height: 100,
       },
 });

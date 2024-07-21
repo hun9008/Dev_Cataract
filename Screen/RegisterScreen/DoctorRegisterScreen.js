@@ -17,6 +17,7 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Loader from '../Components/Loader';
+import Postcode from '@actbase/react-daum-postcode';
 
 const DoctorRegisterScreen = ({ route }) => {
   const { doctortype } = route.params;
@@ -28,6 +29,7 @@ const DoctorRegisterScreen = ({ route }) => {
   const [doctorHospital, setdoctorHospital] = useState('');
   const [loading, setLoading] = useState(false);
   const [errortext, setErrortext] = useState('');
+  const [isModal, setModal] = useState(false);
 
   const [
     isRegistraionSuccess,
