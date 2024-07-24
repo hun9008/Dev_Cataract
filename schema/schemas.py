@@ -1,18 +1,24 @@
 from models.user import User
 from models.doctor import Doctor
 from typing import Union, List
+from pymongo import MongoClient
+import gridfs
+import base64
+from bson import ObjectId
+from config.database import fs
 
 def individual_serial(data: dict) -> dict:
     if "u_email" in data:
         pets_data = []
         for pet in data.get("pet", []):
-            pet_dict = {
-                "p_name": pet["p_name"],
-                "p_type": pet["p_type"],
-                "p_color": pet["p_color"],
-                "p_age": pet["p_age"]
-            }
-            pets_data.append(pet_dict)
+             if pet and all(key in pet for key in ["p_name", "p_type", "p_color", "p_age"]):
+                pet_dict = {
+                    "p_name": pet["p_name"],
+                    "p_type": pet["p_type"],
+                    "p_color": pet["p_color"],
+                    "p_age": pet["p_age"]
+                }
+                pets_data.append(pet_dict)
         result = {
             "_id": str(data["_id"]),
             "u_email": data["u_email"],
@@ -29,38 +35,43 @@ def individual_serial(data: dict) -> dict:
             result["d_hospital"] = data["d_hospital"]
         
         return result
-    
+    # post 가져오기
     elif "po_detail" in data:
         images_data = []
-        for image in data.get("im_list", []):
+        for image in data.get("image", []):
+            image_encoded = image["image_encoded"]
             image_dict = {
-                "filename": image["filename"]
+                "filename": image["filename"],
+                "image_encoded" : image_encoded
             }
             images_data.append(image_dict)
         like_list = []
         for like in data.get("like_list", []):
             like_dict = {
-                "user_id": like["user_id"],
-                "po_id": like["po_id"]
+                "user_id": str(like["user_id"]),
+                "po_id": str(like["po_id"])
             }
             like_list.append(like_dict)
         return{
+            "po_id": str(data["_id"]),
             "po_detail": data["po_detail"],
-            "im_ids": images_data,
-            "like_list": like_list
+            "user_id": str(data["user_id"]),
+            "image": images_data,
+            "like_list": like_list,
+            "predict": data["predict"]
         }
     elif "co_detail" in data:
         like_list = []
         for like in data.get("like_list", []):
             like_dict = {
-                "user_id": like["user_id"],
+                "user_id": str(like["user_id"]),
                 "co_id": like["co_id"]
             }
             like_list.append(like_dict)
         return{
             "co_detail": data["co_detail"],
-            "user_id": data["user_id"],
-            "post_id": data["post_id"],
+            "user_id": str(data["user_id"]),
+            "post_id": str(data["post_id"]),
             "like_list": like_list
         }
     else:

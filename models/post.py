@@ -3,7 +3,7 @@ from typing import List
     
 class Image(BaseModel):
     filename : str
-    image_id : str
+    image_encoded : str
     
     
 class UserPostLike(BaseModel):
@@ -23,14 +23,14 @@ class Comment(BaseModel):
     like_list : List[UserCommentLike] = []
 
 class Predict(BaseModel):
-    image : Image
     predicted_class : str
     probability : float
-    all_predictions : List[float] = []
+    all_probability : List[List[float]] = []
+    lime : List[Image] = []
     
 class Post(BaseModel):
     po_detail : str
-    im_list : List[Image] = []
+    image : List[Image] = []
     like_list : List[UserPostLike] = []
     predict : Predict
     
