@@ -35,7 +35,6 @@ export default function Cam({ navigation }) {
       setPhoto(photo);
 
       let dataToSend = { img:photo.base64 };
-      console.log(dataToSend);
 
       fetch('http://cataractmodel.hunian.site/inference', {
         method: 'POST',
