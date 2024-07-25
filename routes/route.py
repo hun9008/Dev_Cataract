@@ -97,11 +97,6 @@ async def get_feed_all():
     posts = list_serial(collection_name_post.find())
     return posts
 
-@router.get("/posting/feed")
-async def get_feed(user: User):
-    posts = list_serial(collection_name_post.find({"u_id": user["_id"]}))
-    return posts
-
 @router.post("/posting/feed")
 async def post_feed(post: Post, user: User):
     user_record = collection_name_user.find_one({"u_email": user.u_email})
@@ -126,6 +121,11 @@ async def post_feed(post: Post, user: User):
     }
     inserted_id = collection_name_post.insert_one(post_data).inserted_id
     return {"_id": str(inserted_id)}
+
+@router.get("/posting/feed{post_id}")
+async def get_feed(post_id: str):
+    post = collection_name_post.find_one({"_id": ObjectId(post_id)})
+    return post    
 
 @router.delete("/posting/feed/{post_id}")
 async def delete_feed(post_id: str):
