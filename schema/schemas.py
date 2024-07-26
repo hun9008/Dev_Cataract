@@ -28,11 +28,14 @@ def individual_serial(data: dict) -> dict:
             "u_sex": data["u_sex"],
             "u_name": data["u_name"],
             "u_nickname": data["u_nickname"],
-            "pet": pets_data
+            "pet": pets_data,
+            "role" : data["role"]
         }
         # d_hospital 필드가 있는 경우에만 추가
         if "d_hospital" in data:
             result["d_hospital"] = data["d_hospital"]
+        else:
+            result["d_hospital"] = None
         
         return result
     # post 가져오기
