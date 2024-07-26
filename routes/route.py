@@ -59,8 +59,8 @@ async def post_user(user: User):
 
 @router.post("/account/login/user")
 async def login_user(request: LoginRequest):
-    u_email = request["u_email"]
-    u_pwd = request["u_pwd"]
+    u_email = request.u_email
+    u_pwd = request.u_pwd
     user = collection_name_user.find_one({"u_email": u_email, "u_pwd": u_pwd})
     if user:
         user["_id"] = str(user["_id"])
