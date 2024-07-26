@@ -4,7 +4,7 @@ from fastapi import HTTPException, status, Depends, Request
 from starlette.responses import JSONResponse
 from schema.request_schema import ImageRequest
 from PIL import Image
-from models.user import User
+from models.user import User, LoginRequest
 from models.user import Pet
 from models.post import Post, Comment, UserPostLike, UserCommentLike
 from config.database import collection_name_user, collection_name_post, collection_name_image, collection_name_comment, collection_name_user_post_like, collection_name_user_comment_like, collection_name_predict, fs
@@ -58,7 +58,7 @@ async def post_user(user: User):
 ## LOGIN
 
 @router.post("/account/login/user")
-async def login_user(request: User):
+async def login_user(request: LoginRequest):
     u_email = request["u_email"]
     u_pwd = request["u_pwd"]
     user = collection_name_user.find_one({"u_email": u_email, "u_pwd": u_pwd})
