@@ -19,3 +19,7 @@ class User(BaseModel):
     pet: List[Pet] = []
     # docter
     d_hospital: Optional[str] = None
+    
+class LoginRequest(BaseModel):
+    u_email: str
+    u_pwd: str
