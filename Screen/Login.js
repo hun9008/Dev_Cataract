@@ -133,7 +133,7 @@ const Login = ({ navigation }) => {
             </TouchableOpacity>
             <Text
               style={styles.registerTextStyle}
-              onPress={() => navigation.navigate('SelectDoctorUser')}>
+              onPress={() => navigation.navigate('SelectUserOrDoctor')}>
               회원가입하기
             </Text>
           </KeyboardAvoidingView>

@@ -28,8 +28,10 @@ export default function Gallery({ navigation }) {
       setImage(result.assets[0].uri);
       setBase64Image(result.assets[0].base64);
 
-      let dataToSend = {img:result.assets[0].base64};
-      console.log(dataToSend)
+      let dataToSend = {
+        img:result.assets[0].base64
+       };
+      console.log(JSON.stringify(dataToSend).slice(0, 100) + '...' + JSON.stringify(dataToSend).slice(-100))
 
       fetch('http://cataractmodel.hunian.site/inference', {
           method: 'POST',
