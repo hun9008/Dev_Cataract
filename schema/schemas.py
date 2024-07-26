@@ -29,7 +29,7 @@ def individual_serial(data: dict) -> dict:
             "u_name": data["u_name"],
             "u_nickname": data["u_nickname"],
             "pet": pets_data,
-            "role" : data["role"]
+            "type" : data["type"]
         }
         # d_hospital 필드가 있는 경우에만 추가
         if "d_hospital" in data:
@@ -59,6 +59,7 @@ def individual_serial(data: dict) -> dict:
             "po_id": str(data["_id"]),
             "po_detail": data["po_detail"],
             "user_id": str(data["user_id"]),
+            "type" : data["type"],
             "image": images_data,
             "like_list": like_list,
             "predict": data["predict"]
@@ -74,6 +75,7 @@ def individual_serial(data: dict) -> dict:
         return{
             "co_detail": data["co_detail"],
             "user_id": str(data["user_id"]),
+            "type" : data["type"],
             "post_id": str(data["post_id"]),
             "like_list": like_list
         }

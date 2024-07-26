@@ -48,10 +48,10 @@ async def post_user(user: User):
         "pet": [pet.dict() for pet in user.pet] if user.pet else []
     }
     if user.role == "doctor":
-        user_data["role"] = "doctor"
+        user_data["type"] = "doctor"
         user_data["d_hospital"] = user.d_hospital
     elif user.role == "user":
-        user_data["role"] = "user"
+        user_data["type"] = "user"
         user_data["d_hospital"] = None
         
     json_data = jsonable_encoder(user_data)
@@ -119,6 +119,7 @@ async def post_feed(post: Post, user: User):
     post_data = {
         "po_detail": post.po_detail,
         "user_id": user_record["_id"],
+        "type" : user_record["type"],
         "image": image_ids,   
         "predict": predict_data  # 나중에 models 브랜치에 맞게 수정
     }
@@ -142,6 +143,7 @@ async def post_comment(post_id: str, comment: Comment, user : User):
     comment_data = {
         "co_detail": comment.co_detail,
         "user_id": user_record["_id"],
+        "type" : user_record["type"],
         "post_id": ObjectId(post_id)
     }
     inserted_id = collection_name_comment.insert_one(comment_data).inserted_id
