@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, Button, StyleSheet } from 'react-native';
 
-export default function SelectGalleryOrCam({ navigation, route }) {
-  const { _id, u_nickname } = route.params;
+export default function SelectGalleryOrCam({ navigation}) {
 
   return (
     <View style={styles.container}>

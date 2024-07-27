@@ -1,23 +1,18 @@
-
 import React, {useState, createRef} from 'react';
 import {
   StyleSheet,
   TextInput,
   View,
   Text,
-  Image,
   KeyboardAvoidingView,
-  Keyboard,
   TouchableOpacity,
   ScrollView,
-  Button,
-  FlatList,
 } from 'react-native';
 
 import WheelPicker from 'react-native-wheely';
 import Checkbox from 'expo-checkbox';
 
-const years = Array.from({ length: 125 }, (_, i) => (1900 + i).toString()); // 1900부터 2024까지의 배열 생성
+const years = Array.from({ length: 125 }, (_, i) => (1900 + i).toString());
 const months = Array.from({ length: 12 }, (_, i) => (i + 1).toString());
 const days = Array.from({ length: 31 }, (_, i) => (i + 1).toString());
 
@@ -31,24 +26,14 @@ const UserRegisterScreen = ({ route }) => {
   const [confirmPassword, setconfirmPassword] = useState('');
   const [userPN, setUserPN] = useState('');
   const [userSex, setUserSex] = useState('');
-  const [userBirth, setUserBirth] = useState('');
   const [userPet, setUserPet] = useState([]);
   const [errortext, setErrortext] = useState('');
   const [isChecked, setChecked] = useState(false);
-  const [date, setDate] = useState(new Date());
-  const [open, setOpen] = useState(false);
-  const [
-    isRegistraionSuccess,
-    setIsRegistraionSuccess
-  ] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [selectedYear, setSelectedYear] = useState('2024'); // 선택된 연도 상태
-  const [selectedMonth, setSelectedMonth] = useState('1'); // 선택된 월 상태
-  const [selectedDay, setSelectedDay] = useState('1'); // 선택된 일 상태
-
-  if(usertype == 'doctor'){
-    const [hospital, sethospital] = useState('');
-  }
+  const [isRegistraionSuccess, setIsRegistraionSuccess] = useState(false);
+  const [selectedYear, setSelectedYear] = useState('2024');
+  const [selectedMonth, setSelectedMonth] = useState('1');
+  const [selectedDay, setSelectedDay] = useState('1');
+  const [hospital, sethospital] = useState('');
 
   const emailInputRef = createRef();
   const passwordInputRef = createRef();
@@ -56,10 +41,9 @@ const UserRegisterScreen = ({ route }) => {
   const pnInputRef = createRef();
   const sexInputRef = createRef();
   const birthInputRef = createRef();
+  const hospitalInputRef = createRef();
 
-  const hasNotSameError = () => {
-      return userPassword !== confirmPassword;
-    };
+  const hasNotSameError = () => userPassword !== confirmPassword;
 
   const handleSubmitButton = () => {
     setErrortext('');
@@ -80,80 +64,49 @@ const UserRegisterScreen = ({ route }) => {
       return;
     }
     if (!userPN) {
-        alert('전화번호를 입력해주세요.');
+      alert('전화번호를 입력해주세요.');
+      return;
     }
     if (!userSex) {
-        alert('성별을 선택해주세요.');
+      alert('성별을 선택해주세요.');
+      return;
     }
-    /*
-        // Not Null
-        "_id": "000000000000000",
-        "type": "doctor",
-        "email": "blablabla@gmail.com",
-        "pwd": "test1234",
-        "phone_num": "010-1234-5678",
-        "name": "hun",
-        "nickname": "PhD",
-        "sex": "Male",
-        "birth": "2001-01-01",
-
-        // User
-        "pet": [{
-                "p_name": "TT",
-                "p_type": "Dog",
-                "p_color": "Black",
-                "p_age": "5",
-        }]
-
-        // Doctor
-        "hospital": "zerozeroHosp"
-     */
-    const dataToSend = {}; // 빈 객체로 초기화
-
-    if (usertype === 'user') {
-      Object.assign(dataToSend, {
-        u_email: userEmail,
-        u_pwd: userPassword,
-        u_PN: userPN,
-        u_birth: `${selectedYear}-${selectedMonth}-${selectedDay}`,
-        u_sex: userSex,
-        u_name: userName,
-        u_nickname: userNickname,
-        pet: userPet,
-      });
-    } else if (usertype === 'doctor') {
-      Object.assign(dataToSend, {
-        u_email: userEmail,
-        u_pwd: userPassword,
-        u_PN: userPN,
-        u_birth: `${selectedYear}-${selectedMonth}-${selectedDay}`,
-        u_sex: userSex,
-        u_name: userName,
-        u_nickname: userNickname,
-        pet: userPet,
-        d_hospital: hospital,
-      });
+    if (usertype === 'doctor' && !hospital) {
+      alert('근무 중인 병원을 입력해주세요.');
+      return;
     }
+
+    const dataToSend = {
+      u_email: userEmail,
+      u_pwd: userPassword,
+      u_PN: userPN,
+      u_birth: `${selectedYear}-${selectedMonth}-${selectedDay}`,
+      u_sex: userSex,
+      u_name: userName,
+      u_nickname: userNickname,
+      pet: userPet,
+      role: usertype,
+    };
+
+    if (usertype === 'doctor') {
+      dataToSend.d_hospital = hospital;
+    }
+
     console.log(JSON.stringify(dataToSend));
 
     fetch('http://cataractserver.hunian.site/account/signup/user', {
       method: 'POST',
-      body: JSON.stringify(dataToSend, ["type", "u_email", "u_pwd", "U_PN", "name", "nickname", "sex", "birth", "d_hospital"]),
+      body: JSON.stringify(dataToSend),
       headers: {
-        //Header Defination
-        'Content-Type':
-        'application/json',
+        'Content-Type': 'application/json',
       },
     })
       .then((response) => response.json())
       .then((responseJson) => {
         console.log(responseJson);
-        // If server response message same as Data Matched
         if (responseJson._id) {
           setIsRegistraionSuccess(true);
-          console.log(
-            '회원가입이 완료되었습니다.'
-          );
+          console.log('회원가입이 완료되었습니다.');
         } else {
           setErrortext(responseJson.msg);
           console.log('회원가입에 실패하였습니다.');
@@ -163,189 +116,173 @@ const UserRegisterScreen = ({ route }) => {
         console.error(error);
       });
   };
+
   if (isRegistraionSuccess) {
     return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: 'white',
-          justifyContent: 'center',
-        }}>
-        <Text style={styles.successTextStyle}>
-          Registration Successful
-        </Text>
+      <View style={{ flex: 1, backgroundColor: 'white', justifyContent: 'center' }}>
+        <Text style={styles.successTextStyle}>Registration Successful</Text>
         <TouchableOpacity
           style={styles.buttonStyle}
           activeOpacity={0.5}
-          onPress={() => props.navigation.navigate('Login')}>
+          onPress={() => props.navigation.navigate('Login')}
+        >
           <Text style={styles.buttonTextStyle}>로그인하기</Text>
         </TouchableOpacity>
       </View>
     );
   }
+
   return (
-    <View style={{flex: 1, backgroundColor: 'white'}}>
+    <View style={{ flex: 1, backgroundColor: 'white' }}>
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{
-          justifyContent: 'center',
-          alignContent: 'center',
-        }}>
-        <View style={{alignItems: 'center'}}>
-        </View>
+        contentContainerStyle={{ justifyContent: 'center', alignContent: 'center' }}
+      >
+        <View style={{ alignItems: 'center' }}></View>
         <KeyboardAvoidingView enabled>
           <View style={styles.SectionStyle}>
             <TextInput
               style={styles.inputStyle}
-              onChangeText={(UserName) => setUserName(UserName)}
+              onChangeText={setUserName}
               underlineColorAndroid="#f000"
               placeholder="Enter Name"
               placeholderTextColor="#8b9cb5"
               autoCapitalize="sentences"
               returnKeyType="next"
-              onSubmitEditing={() =>
-                emailInputRef.current && emailInputRef.current.focus()
-              }
+              onSubmitEditing={() => emailInputRef.current && emailInputRef.current.focus()}
               blurOnSubmit={false}
             />
           </View>
           <View style={styles.SectionStyle}>
             <TextInput
               style={styles.inputStyle}
-              onChangeText={(UserEmail) => setUserEmail(UserEmail)}
+              onChangeText={setUserEmail}
               underlineColorAndroid="#f000"
               placeholder="Enter Email"
               placeholderTextColor="#8b9cb5"
               keyboardType="email-address"
-              rules={{
-                  required: true,
-                  pattern: /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,25}$/
-              }}
               ref={emailInputRef}
               returnKeyType="next"
-              onSubmitEditing={() =>
-                passwordInputRef.current &&
-                passwordInputRef.current.focus()
-              }
+              onSubmitEditing={() => passwordInputRef.current && passwordInputRef.current.focus()}
               blurOnSubmit={false}
             />
           </View>
           <View style={styles.SectionStyle}>
             <TextInput
               style={styles.inputStyle}
-              onChangeText={(UserPassword) =>
-                setUserPassword(UserPassword)
-              }
+              onChangeText={setUserPassword}
               underlineColorAndroid="#f000"
               placeholder="Enter Password"
               placeholderTextColor="#8b9cb5"
               ref={passwordInputRef}
               returnKeyType="next"
               secureTextEntry={true}
-              onSubmitEditing={() =>
-                nicknameInputRef.current &&
-                nicknameInputRef.current.focus()
-              }
+              onSubmitEditing={() => nicknameInputRef.current && nicknameInputRef.current.focus()}
               blurOnSubmit={false}
             />
           </View>
           <View style={styles.SectionStyle}>
-              <TextInput
-                style={styles.inputStyle}
-                onChangeText={(confirmPassword) =>
-                 setconfirmPassword(confirmPassword)
-                }
-                underlineColorAndroid="#f000"
-                placeholder="Confirm Password"
-                placeholderTextColor="#8b9cb5"
-                secureTextEntry={true}
-                blurOnSubmit={false}
-              />
-              {hasNotSameError() ? (
-                <Text style={styles.errorTextStyle}>
-                  입력한 비밀번호랑 일치하지 않지롱
-                </Text>
-              ) : null}
-            </View>
-            <View style={styles.SectionStyle}>
-              <TextInput
-                style={styles.inputStyle}
-                onChangeText={(UserNickname) => setUserNickname(UserNickname)}
-                underlineColorAndroid="#f000"
-                placeholder="Enter Nickname"
-                placeholderTextColor="#8b9cb5"
-                autoCapitalize="sentences"
-                returnKeyType="next"
-                onSubmitEditing={() =>
-                  pnInputRef.current && pnInputRef.current.focus()
-                }
-                blurOnSubmit={false}
-              />
-            </View>
+            <TextInput
+              style={styles.inputStyle}
+              onChangeText={setconfirmPassword}
+              underlineColorAndroid="#f000"
+              placeholder="Confirm Password"
+              placeholderTextColor="#8b9cb5"
+              secureTextEntry={true}
+              blurOnSubmit={false}
+            />
+            {hasNotSameError() && (
+              <Text style={styles.errorTextStyle}>입력한 비밀번호랑 일치하지 않지롱</Text>
+            )}
+          </View>
           <View style={styles.SectionStyle}>
             <TextInput
               style={styles.inputStyle}
-              onChangeText={(UserPN) => setUserPN(UserPN)}
+              onChangeText={setUserNickname}
+              underlineColorAndroid="#f000"
+              placeholder="Enter Nickname"
+              placeholderTextColor="#8b9cb5"
+              autoCapitalize="sentences"
+              returnKeyType="next"
+              onSubmitEditing={() => pnInputRef.current && pnInputRef.current.focus()}
+              blurOnSubmit={false}
+            />
+          </View>
+          <View style={styles.SectionStyle}>
+            <TextInput
+              style={styles.inputStyle}
+              onChangeText={setUserPN}
               underlineColorAndroid="#f000"
               placeholder="Enter Phone Number"
               placeholderTextColor="#8b9cb5"
               autoCapitalize="sentences"
               returnKeyType="next"
-              onSubmitEditing={() =>
-                sexInputRef.current && sexInputRef.current.focus()
-              }
+              onSubmitEditing={() => sexInputRef.current && sexInputRef.current.focus()}
               blurOnSubmit={false}
             />
           </View>
-           <View style={styles.birthPickerContainer}>
-             <WheelPicker
-                 style={styles.wheelPicker}
-                 selectedIndex={years.indexOf(selectedYear)}
-                 options={years}
-                 onChange={(index) => setSelectedYear(years[index])}
-               />
-               <WheelPicker
-                 style={styles.wheelPicker}
-                 selectedIndex={months.indexOf(selectedMonth)}
-                 options={months}
-                 onChange={(index) => setSelectedMonth(months[index])}
-               />
-               <WheelPicker
-                 style={styles.wheelPicker}
-                 selectedIndex={days.indexOf(selectedDay)}
-                 options={days}
-                 onChange={(index) => setSelectedDay(days[index])}
-               />
-           </View>
-           <View style={styles.sexPickerContainer}>
-               <View style={styles.checkBoxContainer}>
-                 <Checkbox
-                   style={styles.checkbox}
-                   value={userSex === 'Male'}
-                   onValueChange={() => setUserSex(userSex === 'Male' ? '' : 'Male')}
-                   color={userSex === 'Male' ? '#084B8A' : undefined}
-                 />
-                 <Text style={styles.checkboxText}>Male</Text>
-               </View>
-               <View style={styles.checkBoxContainer}>
-                 <Checkbox
-                   style={styles.checkbox}
-                   value={userSex === 'Female'}
-                   onValueChange={() => setUserSex(userSex === 'Female' ? '' : 'Female')}
-                   color={userSex === 'Female' ? '#084B8A' : undefined}
-                 />
-                 <Text style={styles.checkboxText}>Female</Text>
-               </View>
-             </View>
-          {errortext != '' ? (
-            <Text style={styles.errorTextStyle}>
-              {errortext}
-            </Text>
-          ) : null}
+          <View style={styles.birthPickerContainer}>
+            <WheelPicker
+              style={styles.wheelPicker}
+              selectedIndex={years.indexOf(selectedYear)}
+              options={years}
+              onChange={(index) => setSelectedYear(years[index])}
+            />
+            <WheelPicker
+              style={styles.wheelPicker}
+              selectedIndex={months.indexOf(selectedMonth)}
+              options={months}
+              onChange={(index) => setSelectedMonth(months[index])}
+            />
+            <WheelPicker
+              style={styles.wheelPicker}
+              selectedIndex={days.indexOf(selectedDay)}
+              options={days}
+              onChange={(index) => setSelectedDay(days[index])}
+            />
+          </View>
+          <View style={styles.sexPickerContainer}>
+            <View style={styles.checkBoxContainer}>
+              <Checkbox
+                style={styles.checkbox}
+                value={userSex === 'Male'}
+                onValueChange={() => setUserSex(userSex === 'Male' ? '' : 'Male')}
+                color={userSex === 'Male' ? '#084B8A' : undefined}
+              />
+              <Text style={styles.checkboxText}>Male</Text>
+            </View>
+            <View style={styles.checkBoxContainer}>
+              <Checkbox
+                style={styles.checkbox}
+                value={userSex === 'Female'}
+                onValueChange={() => setUserSex(userSex === 'Female' ? '' : 'Female')}
+                color={userSex === 'Female' ? '#084B8A' : undefined}
+              />
+              <Text style={styles.checkboxText}>Female</Text>
+            </View>
+          </View>
+          {usertype === 'doctor' && (
+            <View style={styles.SectionStyle}>
+              <TextInput
+                style={styles.inputStyle}
+                onChangeText={sethospital}
+                underlineColorAndroid="#f000"
+                placeholder="Enter Hospital"
+                placeholderTextColor="#8b9cb5"
+                autoCapitalize="sentences"
+                returnKeyType="next"
+                blurOnSubmit={false}
+              />
+            </View>
+          )}
+          {errortext !== '' && (
+            <Text style={styles.errorTextStyle}>{errortext}</Text>
+          )}
           <TouchableOpacity
             style={styles.buttonStyle}
             activeOpacity={0.5}
-            onPress={handleSubmitButton}>
+            onPress={handleSubmitButton}
+          >
             <Text style={styles.buttonTextStyle}>회원가입</Text>
           </TouchableOpacity>
         </KeyboardAvoidingView>
@@ -353,6 +290,7 @@ const UserRegisterScreen = ({ route }) => {
     </View>
   );
 };
+
 export default UserRegisterScreen;
 
 const styles = StyleSheet.create({
@@ -403,49 +341,49 @@ const styles = StyleSheet.create({
     padding: 30,
   },
   checkBoxContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginLeft: 35,
-      marginRight: 35,
-      marginTop: 20,
-    },
-    checkBox: {
-      marginRight: 5,
-    },
-    label: {
-      marginRight: 10,
-      marginTop: 5,
-      fontSize: 15,
-      color: '#8b9cb5',
-    },
-    birthPickerContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginLeft: 80,
-        marginRight: 80,
-        marginTop: 20,
-      },
-      wheelPicker: {
-        width: 20,
-        height: 100,
-      },
-     sexPickerContainer: {
-         flexDirection: 'row',
-         justifyContent: 'center',
-         marginTop: 20,
-       },
-       sexButton: {
-         backgroundColor: '#e0e0e0',
-         borderRadius: 5,
-         paddingVertical: 10,
-         paddingHorizontal: 20,
-         marginHorizontal: 10,
-       },
-       selectedButton: {
-         backgroundColor: '#084B8A',
-       },
-       sexButtonText: {
-         color: '#000000',
-         fontSize: 16,
-       },
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 35,
+    marginRight: 35,
+    marginTop: 20,
+  },
+  checkbox: {
+    marginRight: 5,
+  },
+  checkboxText: {
+    marginRight: 10,
+    marginTop: 5,
+    fontSize: 15,
+    color: '#8b9cb5',
+  },
+  birthPickerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginLeft: 80,
+    marginRight: 80,
+    marginTop: 20,
+  },
+  wheelPicker: {
+    width: 20,
+    height: 100,
+  },
+  sexPickerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  sexButton: {
+    backgroundColor: '#e0e0e0',
+    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginHorizontal: 10,
+  },
+  selectedButton: {
+    backgroundColor: '#084B8A',
+  },
+  sexButtonText: {
+    color: '#000000',
+    fontSize: 16,
+  },
 });
