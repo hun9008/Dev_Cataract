@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send POST Request</title>
+    <script>
+        async function sendPostRequest(base64Image) {
+            const url = "http://localhost:8000/inference"; // 포트번호를 실제 서버 포트로 대체하세요
+            const data = {
+                "img": base64Image
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                document.getElementById('response').textContent = JSON.stringify(result, null, 2);
+
+                // base64 디코딩하여 이미지를 표시
+                const limeImage = document.createElement('img');
+                limeImage.src = 'data:image/png;base64,' + result.lime;
+                document.getElementById('limeImageContainer').appendChild(limeImage);
+
+                const vitImage = document.createElement('img');
+                vitImage.src = 'data:image/png;base64,' + result.vit;
+                document.getElementById('vitImageContainer').appendChild(vitImage);
+
+            } catch (error) {
+                document.getElementById('response').textContent = 'Error: ' + error;
+            }
+        }
+
+        function encodeImageFileAsURL() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onloadend = function() {
+                const base64Image = reader.result.split(',')[1]; // base64 인코딩된 부분만 추출
+                sendPostRequest(base64Image);
+            }
+            reader.readAsDataURL(file);
+        }
+    </script>
+</head>
+<body>
+    <h1>Send POST Request</h1>
+    <input type="file" id="fileInput" accept="image/*" />
+    <button onclick="encodeImageFileAsURL()">Upload and Send Request</button>
+    <pre id="response"></pre>
+    <h2>LIME Image</h2>
+    <div id="limeImageContainer"></div>
+    <h2>VIT Image</h2>
+    <div id="vitImageContainer"></div>
+</body>
+</html>

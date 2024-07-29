@@ -20,6 +20,13 @@ from tensorflow.keras.callbacks import EarlyStopping
 from skimage.segmentation import mark_boundaries
 from lime import lime_image
 from tensorflow.keras.preprocessing import image
+import torch
+from torch.nn import functional as F
+from pytorch_grad_cam import GradCAM
+from pytorch_grad_cam.utils.image import show_cam_on_image, preprocess_image
+from torchvision.transforms import Compose, Resize, ToTensor, Normalize
+from transformers import ViTModel, ViTConfig
+import timm
 
 def pred_function(image, model):
     image = np.expand_dims(image, axis=0)
@@ -156,6 +163,14 @@ def vit_inference(encoding_img : str) -> dict:
     model_path = './models/weights/ViT.h5'
     model.load_weights(model_path)
     
+    vit_result = vit_grad_cam(img, 0)
+    # print('vit_result : ', vit_result)
+    vit_result = Image.fromarray(vit_result)
+    buffer = io.BytesIO()
+    vit_result.save(buffer, format="PNG")
+    vit_encoding_img = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    # print("vit_encoding_img : ", vit_encoding_img)
+
     # preprocessed = preprocess_image(image_array)
     blurred = np.expand_dims(blurred, axis=0)
     lime_image = blurred
@@ -181,9 +196,49 @@ def vit_inference(encoding_img : str) -> dict:
         "predicted_class" : predicted_class,
         "probability" : confidence,
         "all_predictions" : predictions,
-        "lime" : lime_output
+        "lime" : lime_output,
+        "vit" : vit_encoding_img
     }
 
 
 
     return pred_dict
+
+
+def reshape_transform(tensor, height=14, width=14):
+    result = tensor[:, 1:, :].reshape(tensor.size(0),
+                                      height, width, tensor.size(2))
+
+    # Bring the channels to the first dimension,
+    # like in CNNs.
+    result = result.transpose(2, 3).transpose(1, 2)
+    return result
+
+def vit_grad_cam(image, class_idx):
+    # Load ViT model
+    # model = torch.hub.load('facebookresearch/deit:main',
+    #                        'deit_tiny_patch16_224', pretrained=True)
+
+    model = timm.create_model('vit_base_patch16_224', pretrained=True)
+    
+    model.eval()
+    target_layers = [model.blocks[-1].norm1]
+
+    # rgb_img = cv2.imread(image, 1)[:, :, ::-1]
+    print("image type : ",type(image))
+    # print("image shape : ",image.shape)3
+    rgb_img = np.array(image)
+    rgb_img = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2BGR)
+    # rgb_img = cv2.imread(image, 1)[:, :, ::-1]
+    rgb_img = cv2.resize(rgb_img, (224, 224))
+    rgb_img = np.float32(rgb_img) / 255
+    input_tensor = preprocess_image(rgb_img, mean=[0.5, 0.5, 0.5],
+                                    std=[0.5, 0.5, 0.5])
+
+    cam = GradCAM(model=model, target_layers=target_layers, reshape_transform=reshape_transform)
+    grayscale_cam = cam(input_tensor=input_tensor)
+
+    grayscale_cam = grayscale_cam[0, :]
+    cam_image = show_cam_on_image(rgb_img, grayscale_cam)
+    # plt.imshow(cam_image)
+    return cam_image

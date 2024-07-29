@@ -51,7 +51,8 @@ async def inference(img: dict):
         "predicted_class" : output_dict["predicted_class"],
         "probability" : output_dict["probability"],
         "all_probability" : all_predictions_str,
-        "lime" : output_dict["lime"]
+        "lime" : output_dict["lime"],
+        "vit" : output_dict["vit"]
     }
     print("output type : ", type(output))
 
