@@ -13,6 +13,7 @@ from bson import ObjectId
 from typing import List
 import base64
 import io
+from fastapi.encoders import jsonable_encoder
 
 router = APIRouter()
 
@@ -37,23 +38,25 @@ async def get_doctors():
 @router.post("/account/signup/user")
 async def post_user(user: User):
     user_data = {
-        "u_email": user["u_email"],
-        "u_pwd": user["u_pwd"],
-        "u_PN": user["u_PN"],
-        "u_birth": user["u_birth"],
-        "u_sex": user["u_sex"],
-        "u_name": user["u_name"],
-        "u_nickname": user["u_nickname"],
-        "pet": [pet for pet in user.get("pet", [])]
+        "u_email": user.u_email,
+        "u_pwd": user.u_pwd,
+        "u_PN": user.u_PN,
+        "u_birth": user.u_birth,
+        "u_sex": user.u_sex,
+        "u_name": user.u_name,
+        "u_nickname": user.u_nickname,
+        "pet": [pet.dict() for pet in user.pet] if user.pet else []
     }
-    if user["d_hospital"] is not None:  # 의사일 경우
-        user_data["d_hospital"] = user["d_hospital"]
-        user_data["role"] = "doctor"
-    else:
-        user_data["role"] = "user"
-    inserted_id = collection_name_user.insert_one(user_data).inserted_id
-    user["_id"] = str(inserted_id)
-    return user
+    if user.role == "doctor":
+        user_data["type"] = "doctor"
+        user_data["d_hospital"] = user.d_hospital
+    elif user.role == "user":
+        user_data["type"] = "user"
+        user_data["d_hospital"] = None
+        
+    json_data = jsonable_encoder(user_data)
+    collection_name_user.insert_one(json_data).inserted_id
+    return user_data
 
 ## LOGIN
 
@@ -116,6 +119,7 @@ async def post_feed(post: Post, user: User):
     post_data = {
         "po_detail": post.po_detail,
         "user_id": user_record["_id"],
+        "type" : user_record["type"],
         "image": image_ids,   
         "predict": predict_data  # 나중에 models 브랜치에 맞게 수정
     }
@@ -139,6 +143,7 @@ async def post_comment(post_id: str, comment: Comment, user : User):
     comment_data = {
         "co_detail": comment.co_detail,
         "user_id": user_record["_id"],
+        "type" : user_record["type"],
         "post_id": ObjectId(post_id)
     }
     inserted_id = collection_name_comment.insert_one(comment_data).inserted_id

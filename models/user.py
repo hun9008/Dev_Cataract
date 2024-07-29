@@ -17,6 +17,7 @@ class User(BaseModel):
     u_name: str
     u_nickname: str
     pet: List[Pet] = []
+    type : str
     # docter
     d_hospital: Optional[str] = None
     
