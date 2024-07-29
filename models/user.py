@@ -1,11 +1,13 @@
 from pydantic import BaseModel
 from typing import List, Optional
+from models.post import Predict
 
 class Pet(BaseModel):
     p_name: str
     p_type: str
     p_color: str
     p_age: str
+    predict : Predict
 
 class User(BaseModel):
     _id: str
