@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import List
+from models.user import Pet
     
 class Image(BaseModel):
     filename : str
@@ -27,10 +28,11 @@ class Predict(BaseModel):
     probability : float
     all_probability : List[List[float]] = []
     lime : List[Image] = []
+    date : str
     
 class Post(BaseModel):
     po_detail : str
     image : List[Image] = []
     like_list : List[UserPostLike] = []
-    predict : Predict
+    pet : Pet
     
