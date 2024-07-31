@@ -62,7 +62,7 @@ def individual_serial(data: dict) -> dict:
             "type" : data["type"],
             "image": images_data,
             "like_list": like_list,
-            "predict": data["predict"]
+            "pet": data["pet"]
         }
     elif "co_detail" in data:
         like_list = []

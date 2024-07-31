@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import List
 from models.user import Pet
+from models.predict import Predict
     
 class Image(BaseModel):
     filename : str
@@ -22,13 +23,6 @@ class Comment(BaseModel):
     #user_id : str
     #post_id : str
     like_list : List[UserCommentLike] = []
-
-class Predict(BaseModel):
-    predicted_class : str
-    probability : float
-    all_probability : List[List[float]] = []
-    lime : List[Image] = []
-    date : str
     
 class Post(BaseModel):
     po_detail : str
