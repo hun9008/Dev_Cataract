@@ -1,8 +1,42 @@
-import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Button, StyleSheet, Image, FlatList } from 'react-native';
 
 const Home = ({ navigation, route }) => {
     const { userId, userNickname } = route.params || {};
+    /*
+    const [pets, setPets] = useState([]);
+
+    useEffect(() => {
+        // Fetch pet data when component mounts
+        fetch(`http://cataractserver.hunian.site/${userId}/all_Pets`)
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.pets) {
+              setPets(data.pets);
+            }
+          })
+          .catch((error) => console.error(error));
+      }, [userId]);
+
+    const renderPetItem = ({ item }) => (
+        <View style={styles.petContainer}>
+          <Image source={{ uri: item.img }} style={styles.petImage} />
+          <Text style={styles.petName}>{item.name}</Text>
+        </View>
+      );
+     */
+
+     /*
+         <View style={styles.container}>
+           <FlatList
+             data={pets}
+             renderItem={renderPetItem}
+             keyExtractor={(item) => item.id.toString()}
+             horizontal={true}
+             showsHorizontalScrollIndicator={false}
+           />
+         </View>
+     */
 
     return (
         <View style={styles.container}>
