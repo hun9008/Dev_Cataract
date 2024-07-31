@@ -55,10 +55,10 @@ async def post_user(user: User):
         "u_nickname": user.u_nickname,
         "pet": [pet.dict() for pet in user.pet] if user.pet else []
     }
-    if user.role == "doctor":
+    if user.type == "doctor":
         user_data["type"] = "doctor"
         user_data["d_hospital"] = user.d_hospital
-    elif user.role == "user":
+    elif user.type == "user":
         user_data["type"] = "user"
         user_data["d_hospital"] = None
         
