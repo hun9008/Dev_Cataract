@@ -12,13 +12,9 @@ import {
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-//import AsyncStorage from '@react-native-async-storage/async-storage';
-//import Loader from './Components/Loader';
-
 const Login = ({ navigation }) => {
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
-//  const [loading, setLoading] = useState(false);
   const [errortext, setErrortext] = useState('');
 
   const passwordInputRef = createRef();
@@ -33,7 +29,6 @@ const Login = ({ navigation }) => {
       alert('비밀번호 형식을 확인해주세요.');
       return;
     }
-//    setLoading(true);
 
     let dataToSend = { u_email: userEmail, u_pwd: userPassword };
     console.log('Data to send:', JSON.stringify(dataToSend)); // 수정된 부분: 디버깅 출력 추가
@@ -48,15 +43,16 @@ const Login = ({ navigation }) => {
     })
       .then((response) => response.json())
       .then((responseJson) => {
-        // Hide Loader
-//        setLoading(false);
         console.log('Response JSON:', responseJson); // 수정된 부분: 디버깅 출력 추가
         // If server response message same as Data Matched
         if (responseJson._id) {
-          navigation.navigate('SelectGalleryOrCam', {
-            _id: responseJson._id,
-            u_nickname: responseJson.u_nickname
-          });
+          navigation.navigate('HomeStack', {
+            screen: 'Home',
+            params: {
+               userId: responseJson._id,
+               userNickname: responseJson.u_nickname,
+             },
+            });
         } else {
           setErrortext(responseJson.msg);
           console.log('입력하신 아이디나 비밀번호가 존재하지 않습니다');
