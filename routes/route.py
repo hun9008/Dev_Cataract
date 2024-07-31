@@ -18,6 +18,13 @@ from fastapi.encoders import jsonable_encoder
 
 router = APIRouter()
 
+# main page
+@router.get("/")
+async def main_page(user_id : str):
+    user = collection_name_user.find_one({"_id" : ObjectId(user_id)})
+    return user["pet"]
+    
+
 ## GET ALL
 
 @router.get("/account/all_users")
@@ -89,10 +96,30 @@ async def post_pet(user_id : str, pet: Pet):
         "p_name": pet["p_name"],
         "p_type": pet["p_type"],
         "p_color": pet["p_color"],
-        "p_age": pet["p_age"]
+        "p_age": pet["p_age"],
+        "profile_image": pet["profile_image"] if "profile_image" in pet else None
     }
     collection_name_user.update_one({"_id": ObjectId(user_id)}, {"$push": {"pet": pet_data}})
     return pet
+
+# delete pet
+@router.delete("/account/user/pet")
+async def delete_pet(user_id : str, pet_name: str):
+    collection_name_user.update_one({"_id": ObjectId(user_id)}, {"$pull": {"pet": {"p_name": pet_name}}})
+    return pet_name
+
+@router.get("/account/user/pet")
+async def get_pet(user_id : str, pet_name: str):
+    user_data = collection_name_user.find_one({"_id" : ObjectId(user_id)})
+    for pet in user_data["pet"]:
+        if pet["p_name"] == pet_name:
+            return pet
+    return "Pet not found"
+
+@router.get("/account/user/all_pet")
+async def get_all_pet(user_id : str):
+    user_data = collection_name_user.find_one({"_id" : ObjectId(user_id)})
+    return user_data["pet"]
 
 # post predict
 @router.post("/account/user/predict")

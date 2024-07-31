@@ -1,13 +1,18 @@
 from pydantic import BaseModel
 from typing import List, Optional
-from models.post import Predict
+from models.predict import Predict
+
+class Image(BaseModel):
+    filename : str
+    image_encoded : str
 
 class Pet(BaseModel):
     p_name: str
     p_type: str
     p_color: str
     p_age: str
-    predict : Predict
+    predict : Optional[Predict] = None
+    profile_image : Optional[str] = None
 
 class User(BaseModel):
     _id: str
@@ -22,6 +27,7 @@ class User(BaseModel):
     type : str
     # docter
     d_hospital: Optional[str] = None
+    profile_image : Optional[str] = None
     
 class LoginRequest(BaseModel):
     u_email: str
