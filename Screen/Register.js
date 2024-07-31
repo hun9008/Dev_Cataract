@@ -1,4 +1,4 @@
-import React, {useState, createRef} from 'react';
+import React, { useState, createRef } from 'react';
 import {
   StyleSheet,
   TextInput,
@@ -6,11 +6,14 @@ import {
   Text,
   KeyboardAvoidingView,
   TouchableOpacity,
-  ScrollView,
+  Button,
+  Image,
 } from 'react-native';
 
 import WheelPicker from 'react-native-wheely';
 import Checkbox from 'expo-checkbox';
+import * as ImagePicker from 'expo-image-picker';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 const years = Array.from({ length: 125 }, (_, i) => (1900 + i).toString());
 const months = Array.from({ length: 12 }, (_, i) => (i + 1).toString());
@@ -19,11 +22,12 @@ const days = Array.from({ length: 31 }, (_, i) => (i + 1).toString());
 const UserRegisterScreen = ({ route }) => {
   const usertype = route.params.type;
 
+  // State variables
   const [userName, setUserName] = useState('');
   const [userNickname, setUserNickname] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
-  const [confirmPassword, setconfirmPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [userPN, setUserPN] = useState('');
   const [userSex, setUserSex] = useState('');
   const [userPet, setUserPet] = useState([]);
@@ -33,7 +37,10 @@ const UserRegisterScreen = ({ route }) => {
   const [selectedYear, setSelectedYear] = useState('2024');
   const [selectedMonth, setSelectedMonth] = useState('1');
   const [selectedDay, setSelectedDay] = useState('1');
-  const [hospital, sethospital] = useState('');
+  const [hospital, setHospital] = useState('');
+  const [imageUri, setImageUri] = useState(null);
+  const [imageBase64, setImageBase64] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1); // Track the current page
 
   const emailInputRef = createRef();
   const passwordInputRef = createRef();
@@ -85,7 +92,8 @@ const UserRegisterScreen = ({ route }) => {
       u_name: userName,
       u_nickname: userNickname,
       pet: userPet,
-      role: usertype,
+      type: usertype,
+      // image: imageBase64,
     };
 
     if (usertype === 'doctor') {
@@ -132,168 +140,206 @@ const UserRegisterScreen = ({ route }) => {
     );
   }
 
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
+    }
+  };
+
   return (
-    <View style={{ flex: 1, backgroundColor: 'white' }}>
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ justifyContent: 'center', alignContent: 'center' }}
-      >
-        <View style={{ alignItems: 'center' }}></View>
-        <KeyboardAvoidingView enabled>
-          <View style={styles.SectionStyle}>
-            <TextInput
-              style={styles.inputStyle}
-              onChangeText={setUserName}
-              underlineColorAndroid="#f000"
-              placeholder="Enter Name"
-              placeholderTextColor="#8b9cb5"
-              autoCapitalize="sentences"
-              returnKeyType="next"
-              onSubmitEditing={() => emailInputRef.current && emailInputRef.current.focus()}
-              blurOnSubmit={false}
-            />
-          </View>
-          <View style={styles.SectionStyle}>
-            <TextInput
-              style={styles.inputStyle}
-              onChangeText={setUserEmail}
-              underlineColorAndroid="#f000"
-              placeholder="Enter Email"
-              placeholderTextColor="#8b9cb5"
-              keyboardType="email-address"
-              ref={emailInputRef}
-              returnKeyType="next"
-              onSubmitEditing={() => passwordInputRef.current && passwordInputRef.current.focus()}
-              blurOnSubmit={false}
-            />
-          </View>
-          <View style={styles.SectionStyle}>
-            <TextInput
-              style={styles.inputStyle}
-              onChangeText={setUserPassword}
-              underlineColorAndroid="#f000"
-              placeholder="Enter Password"
-              placeholderTextColor="#8b9cb5"
-              ref={passwordInputRef}
-              returnKeyType="next"
-              secureTextEntry={true}
-              onSubmitEditing={() => nicknameInputRef.current && nicknameInputRef.current.focus()}
-              blurOnSubmit={false}
-            />
-          </View>
-          <View style={styles.SectionStyle}>
-            <TextInput
-              style={styles.inputStyle}
-              onChangeText={setconfirmPassword}
-              underlineColorAndroid="#f000"
-              placeholder="Confirm Password"
-              placeholderTextColor="#8b9cb5"
-              secureTextEntry={true}
-              blurOnSubmit={false}
-            />
-            {hasNotSameError() && (
-              <Text style={styles.errorTextStyle}>입력한 비밀번호랑 일치하지 않지롱</Text>
-            )}
-          </View>
-          <View style={styles.SectionStyle}>
-            <TextInput
-              style={styles.inputStyle}
-              onChangeText={setUserNickname}
-              underlineColorAndroid="#f000"
-              placeholder="Enter Nickname"
-              placeholderTextColor="#8b9cb5"
-              autoCapitalize="sentences"
-              returnKeyType="next"
-              onSubmitEditing={() => pnInputRef.current && pnInputRef.current.focus()}
-              blurOnSubmit={false}
-            />
-          </View>
-          <View style={styles.SectionStyle}>
-            <TextInput
-              style={styles.inputStyle}
-              onChangeText={setUserPN}
-              underlineColorAndroid="#f000"
-              placeholder="Enter Phone Number"
-              placeholderTextColor="#8b9cb5"
-              autoCapitalize="sentences"
-              returnKeyType="next"
-              onSubmitEditing={() => sexInputRef.current && sexInputRef.current.focus()}
-              blurOnSubmit={false}
-            />
-          </View>
-          <View style={styles.birthPickerContainer}>
-            <WheelPicker
-              style={styles.wheelPicker}
-              selectedIndex={years.indexOf(selectedYear)}
-              options={years}
-              onChange={(index) => setSelectedYear(years[index])}
-            />
-            <WheelPicker
-              style={styles.wheelPicker}
-              selectedIndex={months.indexOf(selectedMonth)}
-              options={months}
-              onChange={(index) => setSelectedMonth(months[index])}
-            />
-            <WheelPicker
-              style={styles.wheelPicker}
-              selectedIndex={days.indexOf(selectedDay)}
-              options={days}
-              onChange={(index) => setSelectedDay(days[index])}
-            />
-          </View>
-          <View style={styles.sexPickerContainer}>
-            <View style={styles.checkBoxContainer}>
-              <Checkbox
-                style={styles.checkbox}
-                value={userSex === 'Male'}
-                onValueChange={() => setUserSex(userSex === 'Male' ? '' : 'Male')}
-                color={userSex === 'Male' ? '#084B8A' : undefined}
-              />
-              <Text style={styles.checkboxText}>Male</Text>
+      <KeyboardAvoidingView behavior="padding" style={styles.container}>
+        {currentPage === 1 && (
+          <>
+            <View style={styles.iconContainer}>
+              {!imageUri && <Ionicons name="person-circle-outline" size={100} color="black" />}
+              {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />}
             </View>
-            <View style={styles.checkBoxContainer}>
-              <Checkbox
-                style={styles.checkbox}
-                value={userSex === 'Female'}
-                onValueChange={() => setUserSex(userSex === 'Female' ? '' : 'Female')}
-                color={userSex === 'Female' ? '#084B8A' : undefined}
-              />
-              <Text style={styles.checkboxText}>Female</Text>
-            </View>
-          </View>
-          {usertype === 'doctor' && (
+            <Button title="Pick Profile Picture" onPress={pickImage} />
             <View style={styles.SectionStyle}>
               <TextInput
                 style={styles.inputStyle}
-                onChangeText={sethospital}
-                underlineColorAndroid="#f000"
-                placeholder="Enter Hospital"
+                onChangeText={setUserName}
+                placeholder="Enter Name"
                 placeholderTextColor="#8b9cb5"
                 autoCapitalize="sentences"
                 returnKeyType="next"
+                onSubmitEditing={() => emailInputRef.current && emailInputRef.current.focus()}
                 blurOnSubmit={false}
               />
             </View>
-          )}
-          {errortext !== '' && (
-            <Text style={styles.errorTextStyle}>{errortext}</Text>
-          )}
-          <TouchableOpacity
-            style={styles.buttonStyle}
-            activeOpacity={0.5}
-            onPress={handleSubmitButton}
-          >
-            <Text style={styles.buttonTextStyle}>회원가입</Text>
-          </TouchableOpacity>
-        </KeyboardAvoidingView>
-      </ScrollView>
-    </View>
+            <View style={styles.SectionStyle}>
+              <TextInput
+                style={styles.inputStyle}
+                onChangeText={setUserEmail}
+                placeholder="Enter Email"
+                placeholderTextColor="#8b9cb5"
+                keyboardType="email-address"
+                ref={emailInputRef}
+                returnKeyType="next"
+                onSubmitEditing={() => passwordInputRef.current && passwordInputRef.current.focus()}
+                blurOnSubmit={false}
+              />
+            </View>
+            <View style={styles.SectionStyle}>
+              <TextInput
+                style={styles.inputStyle}
+                onChangeText={setUserPassword}
+                placeholder="Enter Password"
+                placeholderTextColor="#8b9cb5"
+                ref={passwordInputRef}
+                returnKeyType="next"
+                secureTextEntry={true}
+                onSubmitEditing={() => nicknameInputRef.current && nicknameInputRef.current.focus()}
+                blurOnSubmit={false}
+              />
+            </View>
+            <View style={styles.SectionStyle}>
+              <TextInput
+                style={styles.inputStyle}
+                onChangeText={setConfirmPassword}
+                placeholder="Confirm Password"
+                placeholderTextColor="#8b9cb5"
+                secureTextEntry={true}
+                blurOnSubmit={false}
+              />
+              {hasNotSameError() && (
+                <Text style={styles.errorTextStyle}>입력한 비밀번호랑 일치하지 않지롱</Text>
+              )}
+            </View>
+            <View style={styles.ButtonContainer}>
+            <TouchableOpacity
+              style={styles.buttonStyle}
+              activeOpacity={0.5}
+              onPress={() => setCurrentPage(2)}
+            >
+              <Text style={styles.buttonTextStyle}>다음</Text>
+            </TouchableOpacity>
+            </View>
+          </>
+        )}
+
+        {currentPage === 2 && (
+          <>
+            <View style={styles.SectionStyle}>
+              <TextInput
+                style={styles.inputStyle}
+                onChangeText={setUserNickname}
+                placeholder="Enter Nickname"
+                placeholderTextColor="#8b9cb5"
+                autoCapitalize="sentences"
+                returnKeyType="next"
+                onSubmitEditing={() => pnInputRef.current && pnInputRef.current.focus()}
+                blurOnSubmit={false}
+              />
+            </View>
+            <View style={styles.SectionStyle}>
+              <TextInput
+                style={styles.inputStyle}
+                onChangeText={setUserPN}
+                placeholder="Enter Phone Number"
+                placeholderTextColor="#8b9cb5"
+                autoCapitalize="sentences"
+                returnKeyType="next"
+                onSubmitEditing={() => sexInputRef.current && sexInputRef.current.focus()}
+                blurOnSubmit={false}
+              />
+            </View>
+            <View style={styles.birthPickerContainer}>
+              <WheelPicker
+                style={styles.wheelPicker}
+                selectedIndex={years.indexOf(selectedYear)}
+                options={years}
+                onChange={(index) => setSelectedYear(years[index])}
+              />
+              <WheelPicker
+                style={styles.wheelPicker}
+                selectedIndex={months.indexOf(selectedMonth)}
+                options={months}
+                onChange={(index) => setSelectedMonth(months[index])}
+              />
+              <WheelPicker
+                style={styles.wheelPicker}
+                selectedIndex={days.indexOf(selectedDay)}
+                options={days}
+                onChange={(index) => setSelectedDay(days[index])}
+              />
+            </View>
+            <View style={styles.sexPickerContainer}>
+              <View style={styles.checkBoxContainer}>
+                <Checkbox
+                  style={styles.checkbox}
+                  value={userSex === 'Male'}
+                  onValueChange={() => setUserSex(userSex === 'Male' ? '' : 'Male')}
+                  color={userSex === 'Male' ? '#084B8A' : undefined}
+                />
+                <Text style={styles.checkboxText}>Male</Text>
+              </View>
+              <View style={styles.checkBoxContainer}>
+                <Checkbox
+                  style={styles.checkbox}
+                  value={userSex === 'Female'}
+                  onValueChange={() => setUserSex(userSex === 'Female' ? '' : 'Female')}
+                  color={userSex === 'Female' ? '#084B8A' : undefined}
+                />
+                <Text style={styles.checkboxText}>Female</Text>
+              </View>
+            </View>
+            {usertype === 'doctor' && (
+              <View style={styles.SectionStyle}>
+                <TextInput
+                  style={styles.inputStyle}
+                  onChangeText={setHospital}
+                  placeholder="Enter Hospital"
+                  placeholderTextColor="#8b9cb5"
+                  autoCapitalize="sentences"
+                  returnKeyType="done"
+                  blurOnSubmit={false}
+                />
+              </View>
+            )}
+            {errortext !== '' && (
+              <Text style={styles.errorTextStyle}>{errortext}</Text>
+            )}
+            <View style={styles.ButtonContainer}>
+            <TouchableOpacity
+              style={styles.buttonStyle}
+              activeOpacity={0.5}
+              onPress={() => setCurrentPage(1)}
+            >
+              <Text style={styles.buttonTextStyle}>이전</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.buttonStyle}
+              activeOpacity={0.5}
+              onPress={handleSubmitButton}
+            >
+              <Text style={styles.buttonTextStyle}>회원가입</Text>
+            </TouchableOpacity>
+            </View>
+          </>
+        )}
+      </KeyboardAvoidingView>
   );
 };
 
 export default UserRegisterScreen;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  ButtonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   SectionStyle: {
     flexDirection: 'row',
     height: 40,
@@ -308,9 +354,10 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     borderColor: '#084B8A',
     height: 40,
+    width: 100,
     alignItems: 'center',
     borderRadius: 30,
-    marginLeft: 35,
+    marginLeft: 50,
     marginRight: 35,
     marginTop: 20,
     marginBottom: 20,
@@ -364,7 +411,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   wheelPicker: {
-    width: 20,
+    width: 100,
     height: 100,
   },
   sexPickerContainer: {
@@ -385,5 +432,16 @@ const styles = StyleSheet.create({
   sexButtonText: {
     color: '#000000',
     fontSize: 16,
+  },
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    marginVertical: 10,
+    borderRadius: 50,
   },
 });

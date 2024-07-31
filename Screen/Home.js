@@ -11,6 +11,7 @@ const Home = ({ navigation, route }) => {
             <Button title="Pet 등록하기" onPress={() => navigation.navigate('AddPet', { userId })} />
             <Button title="커뮤니티" onPress={() => navigation.navigate('Community')} />
             <Button title="카메라" onPress={() => navigation.navigate('SelectGalleryOrCam')} />
+            <Button title="검사 결과 확인하기" onPress={() => navigation.navigate('PetInform', { userId })} />
             <Button title="마이페이지" onPress={() => navigation.navigate('Mypage', {userNickname})} />
         </View>
     );
