@@ -18,6 +18,16 @@ from fastapi.encoders import jsonable_encoder
 
 router = APIRouter()
 
+def convert_objectid_to_str(data):
+    if isinstance(data, dict):
+        return {k: convert_objectid_to_str(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [convert_objectid_to_str(i) for i in data]
+    elif isinstance(data, ObjectId):
+        return str(data)
+    else:
+        return data
+
 # main page
 @router.get("/")
 async def main_page(user_id : str):
@@ -94,6 +104,7 @@ async def clear_user():
 @router.post("/account/user/pet")
 async def post_pet(user_id : str, pet: Pet):
     pet_data = {
+        "_id" : ObjectId(),
         "p_name": pet.p_name,
         "p_type": pet.p_type,
         "p_color": pet.p_color,
@@ -102,7 +113,8 @@ async def post_pet(user_id : str, pet: Pet):
         "profile_image": pet.profile_image if pet.predict else None
     }
     collection_name_user.update_one({"_id": ObjectId(user_id)}, {"$push": {"pet": pet_data}})
-    return pet
+    pet_data["_id"] = str(pet_data["_id"])
+    return pet_data
 
 # delete pet
 @router.delete("/account/user/pet")
@@ -171,7 +183,13 @@ async def post_feed(post: Post, user_id : str):
 @router.get("/posting/feed{post_id}")
 async def get_feed(post_id: str):
     post = collection_name_post.find_one({"_id": ObjectId(post_id)})
-    return post    
+    user = collection_name_user.find_one({"_id" : ObjectId(post["user_id"])})
+    post = convert_objectid_to_str(post)
+    user_data = {
+        "u_nickname": user["u_nickname"],
+        "profile_image": user["profile_image"] if "profile_image" in user else None
+    }
+    return post, user_data
 
 @router.delete("/posting/feed/{post_id}")
 async def delete_feed(post_id: str):
