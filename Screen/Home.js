@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, Image, ScrollView } from 'react-native';
+import { View, Text, Button, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 const Home = ({ navigation, route }) => {
@@ -32,12 +32,16 @@ const Home = ({ navigation, route }) => {
         }
     }, [userId]);
 
+    const handlePetPress = (p_name) => {
+        navigation.navigate('PetInform', { userId, p_name });
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.scrollViewWrapper}>
                 <ScrollView horizontal contentContainerStyle={styles.scrollContainer} style={styles.scrollView}>
                     {pets.map((pet, index) => (
-                        <View key={index} style={styles.petItem}>
+                        <TouchableOpacity key={index} style={styles.petItem} onPress={() => handlePetPress(pet.p_name)}>
                             {pet.profile_image ? (
                                 <Image
                                     style={styles.image}
@@ -49,7 +53,7 @@ const Home = ({ navigation, route }) => {
                                 </View>
                             )}
                             <Text style={styles.petName}>{pet.p_name}</Text>
-                        </View>
+                        </TouchableOpacity>
                     ))}
                 </ScrollView>
             </View>

@@ -78,7 +78,7 @@ export default function FeedUpload({ navigation, route }) {
   };
 
   const handleUploadPost = () => {
-    navigation.navigate('Community', { userId });
+    navigation.navigate('FeedUpload', { userId });
   };
 
   return (
