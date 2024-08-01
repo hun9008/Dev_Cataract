@@ -27,15 +27,16 @@ const AddPet = ({ route, navigation }) => {
             p_age: petAge,
             profile_image: imageBase64, // Add the base64 image data here
         };
+        console.log(userId);
+        console.log(JSON.stringify(petData));
 
-        const url = `http://cataractserver.hunian.site/account/user/pet?userId=${userId}`;
+        const url = `http://cataractserver.hunian.site/account/user/pet?user_id=${userId}`;
         fetch(url, {
             method: 'POST',
+            body: JSON.stringify(petData),
             headers: {
-                'accept': 'application/json',
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(petData),
         })
             .then((response) => {
                 if (!response.ok) {
