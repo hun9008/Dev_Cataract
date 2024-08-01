@@ -55,15 +55,16 @@ async def post_user(user: User):
         "u_nickname": user.u_nickname,
         "pet": [pet.dict() for pet in user.pet] if user.pet else []
     }
-    if user.role == "doctor":
+    if user.type == "doctor":
         user_data["type"] = "doctor"
         user_data["d_hospital"] = user.d_hospital
-    elif user.role == "user":
+    elif user.type == "user":
         user_data["type"] = "user"
         user_data["d_hospital"] = None
         
     json_data = jsonable_encoder(user_data)
-    collection_name_user.insert_one(json_data).inserted_id
+    inserted_id = collection_name_user.insert_one(json_data).inserted_id
+    user_data["_id"] = str(inserted_id)
     return user_data
 
 ## LOGIN
@@ -93,11 +94,12 @@ async def clear_user():
 @router.post("/account/user/pet")
 async def post_pet(user_id : str, pet: Pet):
     pet_data = {
-        "p_name": pet["p_name"],
-        "p_type": pet["p_type"],
-        "p_color": pet["p_color"],
-        "p_age": pet["p_age"],
-        "profile_image": pet["profile_image"] if "profile_image" in pet else None
+        "p_name": pet.p_name,
+        "p_type": pet.p_type,
+        "p_color": pet.p_color,
+        "p_age": pet.p_age,
+        "predict": pet.predict.dict() if pet.predict else None,
+        "profile_image": pet.profile_image if pet.predict else None
     }
     collection_name_user.update_one({"_id": ObjectId(user_id)}, {"$push": {"pet": pet_data}})
     return pet
