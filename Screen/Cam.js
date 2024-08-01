@@ -46,7 +46,7 @@ export default function Cam({ navigation }) {
         .then((response) => response.json())
         .then((responseJson) => {
           console.log(responseJson);
-          navigation.navigate('CameraResult', { imageBase64: responseJson.lime });
+          navigation.navigate('CameraResult', {Lime: responseJson.lime,  Vit : responseJson.vit, Predict: responseJson.predicted_class, Probability: responseJson.probability});
         })
         .catch((error) => {
           console.error(error);

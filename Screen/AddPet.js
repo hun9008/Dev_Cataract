@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TextInput, Button, StyleSheet, Text, Alert, Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
@@ -21,56 +21,60 @@ const AddPet = ({ route, navigation }) => {
         }
 
         const petData = {
-            user: userId,
-            pet: {
-                p_name: petName,
-                p_type: petType,
-                p_color: petColor,
-                p_age: petAge,
-                image: imageBase64, // Add the base64 image data here
-            }
+            p_name: petName,
+            p_type: petType,
+            p_color: petColor,
+            p_age: petAge,
+            profile_image: imageBase64, // Add the base64 image data here
         };
 
-        try {
-            const response = await fetch('http://cataractserver.hunian.site/account/user/pet', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(petData),
-            });
-
-            if (response.ok) {
+        const url = `http://cataractserver.hunian.site/account/user/pet?userId=${userId}`;
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(petData),
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    Alert.alert('Failed to add pet');
+                    return;
+                }
+                return response.json();
+            })
+            .then((responseJson) => {
                 Alert.alert('Pet added successfully!');
+                console.log('Response JSON:', responseJson);
                 navigation.goBack(); // Navigate back to the previous screen
-            } else {
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
                 Alert.alert('Failed to add pet');
-            }
-        } catch (error) {
-            Alert.alert('Error:', error.message);
-        }
+            });
     };
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
-              mediaTypes: ImagePicker.MediaTypeOptions.Images,
-              allowsEditing: true,
-              aspect: [4, 3],
-              quality: 1,
-            });
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+            base64: true,
+        });
 
-            if (!result.canceled) {
-              setImageUri(result.assets[0].uri);
-            }
+        if (!result.canceled) {
+            setImageUri(result.assets[0].uri);
+            setImageBase64(result.assets[0].base64);
+        }
     };
 
     return (
         <View style={styles.container}>
             <View style={styles.iconContainer}>
                 {!imageUri && <Ionicons name="person-circle-outline" size={100} color="black" />}
-                {imageUri && (
-                                    <Image source={{ uri: imageUri }} style={styles.image} />
-                                  )}
+                {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />}
             </View>
             <Button title="Pick Profile Picture" onPress={pickImage} />
             <Text style={styles.label}>Name:</Text>

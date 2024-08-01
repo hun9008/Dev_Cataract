@@ -93,14 +93,17 @@ const UserRegisterScreen = ({ route }) => {
       u_nickname: userNickname,
       pet: userPet,
       type: usertype,
-      // image: imageBase64,
     };
 
     if (usertype === 'doctor') {
       dataToSend.d_hospital = hospital;
     }
 
-    console.log(JSON.stringify(dataToSend));
+    if (imageBase64 !== "") {
+        dataToSend.profile_image = imageBase64;
+    }
+
+    console.log(JSON.stringify(dataToSend))
 
     fetch('http://cataractserver.hunian.site/account/signup/user', {
       method: 'POST',
@@ -146,10 +149,13 @@ const UserRegisterScreen = ({ route }) => {
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
+      base64: true,
     });
+
 
     if (!result.canceled) {
       setImageUri(result.assets[0].uri);
+      setImageBase64(result.assets[0].base64);
     }
   };
 

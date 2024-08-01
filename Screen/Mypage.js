@@ -1,17 +1,60 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Alert } from 'react-native';
 
 const Mypage = ({ navigation, route }) => {
   const userNickname = route.params.userNickname;
+  const userId = route.params.userId; // Assuming userId is also passed in route params
+  const [password, setPassword] = useState('');
+
   const handleLogout = () => {
     // Perform any logout operations here (e.g., clearing user data)
     navigation.navigate('Login'); // Navigate to Login page
   };
 
+  const handleDeleteAccount = () => {
+    if (!password) {
+      Alert.alert('Error', 'Please enter your password.');
+      return;
+    }
+
+    fetch('http://cataractserver.hunian.site/account/delete/user', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId, password }), // Send userId and password
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        if (responseJson.success) {
+          Alert.alert('Success', 'Your account has been deleted.');
+          navigation.navigate('Login'); // Navigate to Login page
+        } else {
+          Alert.alert('Error', responseJson.message || 'Failed to delete account.');
+        }
+      })
+      .catch(error => {
+        Alert.alert('Error', error.message);
+      });
+  };
+
   return (
     <View style={styles.container}>
-    {userNickname && <Text>User Nickname: {userNickname}</Text>}
+      {userNickname && <Text>User Nickname: {userNickname}</Text>}
       <Text style={styles.text}>Mypage</Text>
+
+      {/* Password Input Field */}
+      <TextInput
+        style={styles.input}
+        placeholder="Enter your password"
+        secureTextEntry={true}
+        onChangeText={setPassword}
+      />
+
+      <TouchableOpacity style={styles.button} onPress={handleDeleteAccount}>
+        <Text style={styles.buttonText}>회원탈퇴하기</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.button} onPress={handleLogout}>
         <Text style={styles.buttonText}>로그아웃</Text>
       </TouchableOpacity>
@@ -27,6 +70,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
+    padding: 20,
   },
   text: {
     fontSize: 24,
@@ -36,9 +80,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#21610B',
     padding: 10,
     borderRadius: 5,
+    marginVertical: 10,
   },
   buttonText: {
     color: '#FFFFFF',
     fontSize: 16,
+  },
+  input: {
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 20,
   },
 });
