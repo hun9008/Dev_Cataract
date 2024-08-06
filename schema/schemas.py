@@ -55,6 +55,21 @@ def individual_serial(data: dict) -> dict:
                 "po_id": str(like["po_id"])
             }
             like_list.append(like_dict)
+        comment_list = []
+        for comment in data.get("comment_list", []):
+            comment_like_list = []
+            for like in comment.get("like_list", []):
+                like_dict = {
+                    "user_id": str(like["user_id"]),
+                    "co_id": like["co_id"]
+                }
+                comment_like_list.append(like_dict)
+            comment_dict = {
+                "user_id" : str(comment["user_id"]),
+                "co_detail": comment["co_detail"],
+                "like_list": comment_like_list
+            }
+            comment_list.append(comment_dict)
         return{
             "po_id": str(data["_id"]),
             "po_detail": data["po_detail"],
@@ -62,22 +77,8 @@ def individual_serial(data: dict) -> dict:
             "type" : data["type"],
             "image": images_data,
             "like_list": like_list,
+            "comment_list": comment_list,
             "pet": data["pet"]
-        }
-    elif "co_detail" in data:
-        like_list = []
-        for like in data.get("like_list", []):
-            like_dict = {
-                "user_id": str(like["user_id"]),
-                "co_id": like["co_id"]
-            }
-            like_list.append(like_dict)
-        return{
-            "co_detail": data["co_detail"],
-            "user_id": str(data["user_id"]),
-            "type" : data["type"],
-            "post_id": str(data["post_id"]),
-            "like_list": like_list
         }
     else:
         raise ValueError("Unsupported type for serialization")

@@ -20,13 +20,12 @@ class UserCommentLike(BaseModel):
 
 class Comment(BaseModel):
     co_detail : str
-    #user_id : str
-    #post_id : str
     like_list : List[UserCommentLike] = []
     
 class Post(BaseModel):
     po_detail : str
     image : List[Image] = []
     like_list : List[UserPostLike] = []
+    comment_list : List[Comment] = []
     pet : Pet
     

@@ -28,13 +28,6 @@ def convert_objectid_to_str(data):
     else:
         return data
 
-# main page
-@router.get("/")
-async def main_page(user_id : str):
-    user = collection_name_user.find_one({"_id" : ObjectId(user_id)})
-    return user["pet"]
-    
-
 ## GET ALL
 
 @router.get("/account/all_users")
@@ -142,14 +135,10 @@ async def post_predict(user_id : str, predict: Predict, pet_name: str):
         "predicted_class": predict.predicted_class,
         "probability": predict.probability,
         "all_probability": predict.all_probability,
-        "lime" : predict.lime,
+        "lime" : [lime.dict() for lime in predict.lime],
         "date" : predict.date
     }
-    user_data = collection_name_user.find_one({"_id" : ObjectId(user_id)})
-    for pet in user_data["pet"]:
-        if pet["p_name"] == pet_name:
-            pet["predict"] = predict_data
-    
+    collection_name_user.update_one({"_id": ObjectId(user_id), "pet.p_name": pet_name}, {"$set": {"pet.$.predict": predict_data}})
     return "Predict added"
 
 
@@ -170,12 +159,13 @@ async def post_feed(post: Post, user_id : str):
         }
         collection_name_image.insert_one(image_record)
         image_ids.append(image_record)
+    post.pet.predict.lime = [lime.dict() for lime in post.pet.predict.lime]
     post_data = {
         "po_detail": post.po_detail,
         "user_id": user_record["_id"],
         "type" : user_record["type"],
-        "image": image_ids,   
-        "pet" : post.pet
+        "image": image_ids,
+        "pet" : post.pet.dict()
     }
     inserted_id = collection_name_post.insert_one(post_data).inserted_id
     return {"_id": str(inserted_id)}
@@ -201,24 +191,34 @@ async def delete_feed(post_id: str):
 async def post_comment(post_id: str, comment: Comment, user_id : str):
     user_record = collection_name_user.find_one({"_id" : ObjectId(user_id)})
     comment_data = {
+        "_id" : ObjectId(),
         "co_detail": comment.co_detail,
         "user_id": user_record["_id"],
         "type" : user_record["type"],
-        "post_id": ObjectId(post_id)
     }
-    inserted_id = collection_name_comment.insert_one(comment_data).inserted_id
-    return {"message" : "Commented", "_id": str(inserted_id)}
+    collection_name_post.update_one({"_id" : ObjectId(post_id)}, {"$push": {"comment_list": comment_data}})
+    return {"message" : "Commented"}
 
 @router.get("/posting/feed/{post_id}/comment")
 async def get_comment(post_id: str):
-    comments = list_serial(collection_name_comment.find({"post_id": ObjectId(post_id)}))
+    post_record = collection_name_post.find_one({"_id" : ObjectId(post_id)})
+    comments = post_record["comment_list"]
+    for comment in comments:
+        user_record = collection_name_user.find_one({"_id" : ObjectId(comment["user_id"])})
+        comment["u_nickname"] = user_record["u_nickname"]
+        comment["profile_image"] = user_record["profile_image"] if "profile_image" in user_record else None
+    comments = convert_objectid_to_str(comments)
     return comments
 
 @router.delete("/posting/feed/{post_id}/comment/{comment_id}")
-async def delete_comment(comment_id : str, user_id : str):
-    if collection_name_comment.find_one({"_id": ObjectId(comment_id), "user_id": ObjectId(user_id)}):
-        collection_name_comment.delete_one({"_id": ObjectId(comment_id)})
-    return comment_id
+async def delete_comment(post_id : str, comment_id : str):
+    post_record = collection_name_post.find_one({"_id" : ObjectId(post_id)})
+    for comment in post_record["comment_list"]:
+        if comment["_id"] == ObjectId(comment_id):
+            post_record["comment_list"].remove(comment)
+            collection_name_post.update_one({"_id" : ObjectId(post_id)}, {"$pull" : {"comment_list": comment}})
+            return "comment deleted"
+    return "comment not found"
 
 ## like
 @router.post("/posting/feed/{post_id}/like")
@@ -228,7 +228,8 @@ async def post_like(post_id: str, user_id : str):
         "po_id": ObjectId(post_id)
     }
     post = collection_name_post.find_one({"_id": ObjectId(post_id)})
-    if "like_list" not in post:
+    if not "like_list" in post:
+        collection_name_post.update_one({"_id": ObjectId(post_id)}, {"$set": {"like_list": []}})
         post["like_list"] = []
     for like in post["like_list"]:
         if like["user_id"] == user_post_like_data["user_id"]:
@@ -237,19 +238,23 @@ async def post_like(post_id: str, user_id : str):
     return {"message": "Liked"}
 
 @router.post("/posting/feed/{post_id}/comment/{comment_id}/like")
-async def post_comment_like(comment_id: str, user_id : str):
+async def post_comment_like(post_id : str, comment_id: str, user_id : str):
     user_comment_like_data = {
         "user_id": ObjectId(user_id),
         "co_id": ObjectId(comment_id)
     }
-    comment = collection_name_comment.find_one({"_id": ObjectId(comment_id)})
-    if "like_list" not in comment:
-        comment["like_list"] = []
-    for like in comment["like_list"]:
-        if like["user_id"] == user_comment_like_data["user_id"]:
-            return {"message": "Already liked"}
-    collection_name_comment.update_one({"_id": ObjectId(comment_id)}, {"$push": {"like_list": user_comment_like_data}})
-    return {"message": "Liked"}
+    post_record = collection_name_post.find_one({"_id" : ObjectId(post_id)})
+    for comment in post_record["comment_list"]:
+        if comment["_id"] == ObjectId(comment_id):
+            if not "like_list" in comment:
+                collection_name_post.update_one({"_id" : ObjectId(post_id), "comment_list._id": ObjectId(comment_id)}, {"$set": {"comment_list.$.like_list": []}})
+                comment["like_list"] = []
+            for like in comment["like_list"]:
+                if like["user_id"] == user_comment_like_data["user_id"]:
+                    return {"message": "Already liked"}
+            collection_name_post.update_one({"_id" : ObjectId(post_id), "comment_list._id": ObjectId(comment_id)}, {"$push": {"comment_list.$.like_list": user_comment_like_data}})
+            return {"message": "Liked"}
+    return {"message": "Comment not found"}
 
 @router.get("/posting/feed/{post_id}/like")
 async def get_like(post_id: str):
@@ -261,23 +266,36 @@ async def get_like(post_id: str):
     return like_list
 
 @router.get("/posting/feed/{post_id}/comment/{comment_id}/like")
-async def get_comment_like(comment_id: str):
-    comment = collection_name_comment.find_one({"_id": ObjectId(comment_id)})
-    like_list = comment["like_list"]
-    for like in like_list:
-        like["user_id"] = str(like["user_id"])
-        like["co_id"] = str(like["co_id"])
-    return like_list
+async def get_comment_like(post_id : str, comment_id: str):
+    post_record = collection_name_post.find_one({"_id" : ObjectId(post_id)})
+    for comment in post_record["comment_list"]:
+        if comment["_id"] == ObjectId(comment_id):
+            like_list = comment["like_list"]
+            for like in like_list:
+                like["user_id"] = str(like["user_id"])
+                like["co_id"] = str(like["co_id"])
+            return like_list
 
 @router.delete("/posting/feed/{post_id}/like")
 async def post_delete_like(post_id : str, user_id : str):
-    collection_name_user_post_like.delete_one({"po_id": ObjectId(post_id), "user_id": ObjectId(user_id)})
-    return post_id
+    post_record = collection_name_post.find_one({"_id" : ObjectId(post_id)})
+    for post_like in post_record["like_list"]:
+        if post_like["user_id"] == ObjectId(user_id):
+            collection_name_post.update_one({"_id" : ObjectId(post_id)}, {"$pull" : {"like_list": post_like}})
+            return "Like deleted"
+    return "Like not found"
 
 @router.delete("/posting/feed/{post_id}/comment/{comment_id}/like")
-async def post_delete_comment_like(comment_id : str, user_id : str):
-    collection_name_user_comment_like.delete_one({"co_id": ObjectId(comment_id), "user_id": ObjectId(user_id)})
-    return comment_id
+async def post_delete_comment_like(post_id : str, comment_id : str, user_id : str):
+    post_record = collection_name_post.find_one({"_id" : ObjectId(post_id)})
+    for comment in post_record["comment_list"]:
+        if comment["_id"] == ObjectId(comment_id):
+            for like in comment["like_list"]:
+                if like["user_id"] == ObjectId(user_id):
+                    collection_name_post.update_one({"_id" : ObjectId(post_id), "comment_list._id": ObjectId(comment_id)}, {"$pull" : {"comment_list.$.like_list": like}})
+                    return "Comment like deleted"
+            return "User not found"
+    return "Comment not found"
 
 # 주변 병원 검색
 @router.get("/hospital")
