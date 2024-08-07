@@ -10,6 +10,7 @@ from typing import List
 import base64
 from models.inference_ViT import vit_inference
 # from models.inference_ViT import inference
+from models.infer import Infer
 import matplotlib.pyplot as plt
 from PIL import Image
 import json
@@ -20,8 +21,10 @@ router = APIRouter()
 # print("py_version : ", python.__version__)
 
 @router.post("/inference")
-async def inference(img: dict):
-    encoding_img = img["img"]
+async def inference(infer: Infer):
+    encoding_img = infer.img
+    user_id = infer.user_id
+    pet_name = infer.pet_name
     print("encoding_type", type(encoding_img))
     # print(encoding_img)
     # print(type(encoding_img))
@@ -56,5 +59,23 @@ async def inference(img: dict):
     }
     print("output type : ", type(output))
 
+    predict_data = output
+    
+    try:
+        update_result = collection_name_user.update_one(
+            {"_id": ObjectId(user_id), "pet.p_name": pet_name},
+            {"$set": {"pet.$.predict": predict_data}}
+        )
+        if update_result.modified_count == 0:
+            print(f"No document found with user_id {user_id} and pet_name {pet_name}")
+        else:
+            print("Document updated successfully")
+
+    except Exception as e:
+        print(f"Error updating MongoDB: {e}")
     return output
     
+@router.get("/account/all_users")
+async def get_users():
+    users = list_serial(collection_name_user.find())
+    return users
