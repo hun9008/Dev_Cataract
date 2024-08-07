@@ -1,5 +1,6 @@
 from models.user import User
 from models.doctor import Doctor
+from models.post import Post
 from typing import Union, List
 from pymongo import MongoClient
 import gridfs

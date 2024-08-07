@@ -146,6 +146,7 @@ async def post_predict(user_id : str, predict: Predict, pet_name: str):
 @router.get("/posting/feed_all")
 async def get_feed_all():
     posts = list_serial(collection_name_post.find())
+    posts = convert_objectid_to_str(posts)
     return posts
 
 @router.post("/posting/feed")
