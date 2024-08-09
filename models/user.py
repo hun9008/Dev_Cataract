@@ -11,7 +11,7 @@ class Pet(BaseModel):
     p_type: str
     p_color: str
     p_age: str
-    predict : Optional[Predict] = None
+    predict : List[Predict] = []
     profile_image : Optional[str] = None
 
 class User(BaseModel):

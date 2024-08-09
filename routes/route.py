@@ -40,7 +40,7 @@ async def get_doctors():
     users = list_serial(collection_name_user.find())
     doctors = []
     for user in users:
-        if "d_hospital" in user:
+        if user["type"] == "doctor":
             doctors.append(user)
     return doctors
 
@@ -102,11 +102,22 @@ async def post_pet(user_id : str, pet: Pet):
         "p_type": pet.p_type,
         "p_color": pet.p_color,
         "p_age": pet.p_age,
-        "predict": pet.predict.dict() if pet.predict else None,
+        "predict": [],
         "profile_image": pet.profile_image if pet.predict else None
     }
+    for predict in pet.predict:
+        predict_data = {
+            "_id" : ObjectId(),
+            "predicted_class": predict.predicted_class,
+            "probability": predict.probability,
+            "all_probability": predict.all_probability,
+            "lime" : [lime.dict() for lime in predict.lime],
+            "GradCam" : [GradCam.dict() for GradCam in predict.GradCam],
+            "date" : predict.date
+        }
+        pet_data["predict"].append(predict_data)
     collection_name_user.update_one({"_id": ObjectId(user_id)}, {"$push": {"pet": pet_data}})
-    pet_data["_id"] = str(pet_data["_id"])
+    pet_data = convert_objectid_to_str(pet_data)
     return pet_data
 
 # delete pet
@@ -120,27 +131,44 @@ async def get_pet(user_id : str, pet_name: str):
     user_data = collection_name_user.find_one({"_id" : ObjectId(user_id)})
     for pet in user_data["pet"]:
         if pet["p_name"] == pet_name:
+            pet = convert_objectid_to_str(pet)
             return pet
     return "Pet not found"
 
 @router.get("/account/user/all_pet")
 async def get_all_pet(user_id : str):
     user_data = collection_name_user.find_one({"_id" : ObjectId(user_id)})
+    user_data["pet"] = convert_objectid_to_str(user_data["pet"])
     return user_data["pet"]
 
 # post predict
-@router.post("/account/user/predict")
+@router.post("/account/user/pet/{pet_name}/predict")
 async def post_predict(user_id : str, predict: Predict, pet_name: str):
     predict_data = {
+        "_id" : ObjectId(),
         "predicted_class": predict.predicted_class,
         "probability": predict.probability,
         "all_probability": predict.all_probability,
         "lime" : [lime.dict() for lime in predict.lime],
+        "GradCam" : [GradCam.dict() for GradCam in predict.GradCam],
         "date" : predict.date
     }
-    collection_name_user.update_one({"_id": ObjectId(user_id), "pet.p_name": pet_name}, {"$set": {"pet.$.predict": predict_data}})
+    collection_name_user.update_one({"_id": ObjectId(user_id), "pet.p_name": pet_name}, {"$push": {"pet.$.predict": predict_data}})
     return "Predict added"
 
+@router.get("/account/user/pet/{pet_name}/predict")
+async def get_predict(user_id : str, pet_name: str):
+    user_data = collection_name_user.find_one({"_id" : ObjectId(user_id)})
+    for pet in user_data["pet"]:
+        if pet["p_name"] == pet_name:
+            pet["predict"] = convert_objectid_to_str(pet["predict"])
+            return pet["predict"]
+    return "Predict not found"
+
+@router.delete("/account/user/pet/{pet_name}/predict")
+async def delete_predict(user_id : str, pet_name: str, predict_id: str):
+    collection_name_user.update({"_id": ObjectId(user_id), "pet.p_name": pet_name}, {"$pull": {"pet.$.predict": {"_id": ObjectId(predict_id)}}})
+    
 
 ## post article
 @router.get("/posting/feed_all")
@@ -150,7 +178,7 @@ async def get_feed_all():
     return posts
 
 @router.post("/posting/feed")
-async def post_feed(post: Post, user_id : str):
+async def post_feed(post: Post, user_id : str, predict_id : str, pet_id : str):
     user_record = collection_name_user.find_one({"_id" : ObjectId(user_id)})
     image_ids = []
     for image_data in post.image:
@@ -160,13 +188,33 @@ async def post_feed(post: Post, user_id : str):
         }
         collection_name_image.insert_one(image_record)
         image_ids.append(image_record)
-    post.pet.predict.lime = [lime.dict() for lime in post.pet.predict.lime]
+    for pet in user_record["pet"]:
+        if str(pet["_id"]) == pet_id:
+            pet_data = {
+                "p_name": pet["p_name"],
+                "p_type": pet["p_type"],
+                "p_color": pet["p_color"],
+                "p_age": pet["p_age"],
+                "profile_image": pet["profile_image"] if pet["profile_image"] else None
+            }
+            for predict in pet["predict"]:
+                if str(predict["_id"]) == predict_id:
+                    predict_data = {
+                        "_id" : ObjectId(predict_id),
+                        "predicted_class": predict["predicted_class"],
+                        "probability": predict["probability"],
+                        "all_probability": predict["all_probability"],
+                        "lime" : predict["lime"],
+                        "GradCam" : predict["GradCam"],
+                        "date" : predict["date"]
+                    }
     post_data = {
         "po_detail": post.po_detail,
         "user_id": user_record["_id"],
         "type" : user_record["type"],
         "image": image_ids,
-        "pet" : post.pet.dict()
+        "pet" : pet_data,
+        "final_predict" : predict_data
     }
     inserted_id = collection_name_post.insert_one(post_data).inserted_id
     return {"_id": str(inserted_id)}
@@ -203,6 +251,9 @@ async def post_comment(post_id: str, comment: Comment, user_id : str):
 @router.get("/posting/feed/{post_id}/comment")
 async def get_comment(post_id: str):
     post_record = collection_name_post.find_one({"_id" : ObjectId(post_id)})
+    if not "comment_list" in post_record:
+        collection_name_post.update_one({"_id": ObjectId(post_id)}, {"$set": {"comment_list": []}})
+        post_record["comment_list"] = []
     comments = post_record["comment_list"]
     for comment in comments:
         user_record = collection_name_user.find_one({"_id" : ObjectId(comment["user_id"])})
@@ -260,6 +311,9 @@ async def post_comment_like(post_id : str, comment_id: str, user_id : str):
 @router.get("/posting/feed/{post_id}/like")
 async def get_like(post_id: str):
     post = collection_name_post.find_one({"_id": ObjectId(post_id)})
+    if not "like_list" in post:
+        collection_name_post.update_one({"_id": ObjectId(post_id)}, {"$set": {"like_list": []}})
+        post["like_list"] = []
     like_list = post["like_list"]
     for like in like_list:
         like["user_id"] = str(like["user_id"])

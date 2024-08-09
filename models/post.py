@@ -27,5 +27,3 @@ class Post(BaseModel):
     image : List[Image] = []
     like_list : List[UserPostLike] = []
     comment_list : List[Comment] = []
-    pet : Pet
-    

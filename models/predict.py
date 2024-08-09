@@ -10,4 +10,5 @@ class Predict(BaseModel):
     probability : float
     all_probability : List[List[float]] = []
     lime : List[Image] = []
+    GradCam : List[Image] = []
     date : str
