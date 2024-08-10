@@ -1,49 +1,41 @@
-# Back Branch
+# AI Vet - 반려동물 진단 서비스
 
-This is Back Branch.
+AI Vet은 AI 기반의 반려동물 건강 진단 서비스로, 반려견의 안구 질환을 신속하고 정확하게 진단합니다. 반려동물 양육인구의 증가와 이들의 건강 관리 필요성을 해결하기 위해 개발되었습니다.
 
-Happy Hack.
+## 개발 Branch
 
-# Guide
+| Branch 명 | 내용 | 기술 스택 |
+| --- | --- | --- |
+| front | Front 개발 branch | React Native |
+| back | Backend 개발 branch | Fast API, MongoDB |
+| model | model server 개발 branch | Fast API, PyTorch |
 
-테스트시에는 [가상환경](#virtual-machine-run) 만들어서 requirements.txt를 설치한 후 실행하는 것을 권장.
+## 프로젝트 선정 배경
 
-배포 테스트 시에는 도커로 로컬 테스트하고 image 배포 권장.
+- 반려동물 양육인구 비율 증가: 2024년 농림축산식품부의 동물복지 국민의식조사에 따르면, 반려동물 양육인구 비율이 28.2%로 역대 최고치를 기록했습니다.
+- 높은 동물병원 이용률: 반려동물을 키우는 가구의 80.4%가 월 1회 이상 동물병원을 방문하고 있으며, 진료비 부담이 큰 문제로 지적되고 있습니다.
 
+## 서비스 개요
 
-## Docker run
+AI Vet은 다음과 같은 주요 기능을 제공합니다:
 
-```
-// Docker 이미지 가져와서 실행
-sudo docker pull yonghune/cataract-app:0.1
-sudo docker images
-sudo docker run -d -p 8000:8000 yonghune/cataract-app:0.1
-sudo docker ps
-```
+- AI 진단: AI 기반의 24시간 반려견 안구 질환 진단 서비스로, 동물병원을 방문하지 않고도 신속하게 반려견의 건강 상태를 확인할 수 있습니다.
+- 전문가 상담: AI 진단 후 필요 시 전문가와의 상담을 통해 추가적인 치료 계획을 세울 수 있습니다.
+- 커뮤니티: 진단 결과를 커뮤니티에 공유하여 다른 사용자들과 상호작용하거나 전문가의 추가 의견을 얻을 수 있습니다.
 
-## Docker build
+## 기술 스택
 
-```
-docker build -t <이미지_이름>:<태그> .
-docker run -d -p 8000:8000 cataract-app:latest
-docker tag cataract-app yonghune/cataract-app:0.2
-docker push yonghune/cataract-app:0.2
-```
+- 모델: Vision Transformer(ViT) 기반 모델로, ImageNet 데이터셋에서 사전 학습된 모델을 사용하여 AIHub의 강아지 눈 사진 8000장으로 파인튜닝되었습니다.
+- 기술: LIME과 GradCAM 기법을 통해 Explainable AI를 제공하여, 사용자가 진단 결과를 이해하기 쉽게 시각화합니다.
 
-## Virtual Machine run
+## 앱 서비스 구조
 
-```
-python3 -m venv cataract
-source cataract/bin/activate
-pip install -r requirements.txt
-```
+- 프론트엔드: 로그인/회원가입, 펫 프로필 추가, 진단 결과 제공, 커뮤니티 피드 업로드 및 댓글 기능이 포함된 사용자 인터페이스.
+- 백엔드: 데이터베이스 구조 설계, 커뮤니티 게시글 관리, 주변 병원 데이터 제공 등의 기능.
+- 모델 서버: ViT 모델 서빙 API, LIME 및 GradCAM 추론 결과 제공.
 
-추가로 설치한 라이브러리가 있다. 아래와 같이 requirements 업데이트
-```
-pip freeze > requirements.txt
-```
-(주의 : 가상환경이 아닌 로컬환경에서 requirements 업데이트하면 이상한게 덮어 쓰일 수 있으니, 가상환경에서 작업하길 권장)
+## 기대 효과
 
-## MongoDB
-
-접근권한 주는 게 있는걸로 아는데 그건 일요일에 해볼게요 일단 저 API로 쏘면 DB 만들어지긴 할거야.
+1.	비용 절감: 동물병원 진료비 부담 감소.
+2.	편리성: 시간과 장소에 구애받지 않고 무료로 건강 진단 가능.
+3.	신뢰성: 신뢰할 수
