@@ -228,6 +228,10 @@ async def get_feed(post_id: str):
         "u_nickname": user["u_nickname"],
         "profile_image": user["profile_image"] if "profile_image" in user else None
     }
+    for comment in post["comment_list"]:
+        user_record = collection_name_user.find_one({"_id" : ObjectId(comment["user_id"])})
+        comment["u_nickname"] = user_record["u_nickname"]
+        comment["profile_image"] = user_record["profile_image"] if "profile_image" in user_record else None
     return post, user_data
 
 @router.delete("/posting/feed/{post_id}")
