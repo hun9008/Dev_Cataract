@@ -178,7 +178,7 @@ async def get_feed_all():
     return posts
 
 @router.post("/posting/feed")
-async def post_feed(post: Post, user_id : str, predict_id : str, pet_id : str):
+async def post_feed(post: Post, user_id : str, predict_id : str, pet_name : str):
     user_record = collection_name_user.find_one({"_id" : ObjectId(user_id)})
     image_ids = []
     for image_data in post.image:
@@ -189,7 +189,7 @@ async def post_feed(post: Post, user_id : str, predict_id : str, pet_id : str):
         collection_name_image.insert_one(image_record)
         image_ids.append(image_record)
     for pet in user_record["pet"]:
-        if str(pet["_id"]) == pet_id:
+        if str(pet["p_name"]) == pet_name:
             pet_data = {
                 "p_name": pet["p_name"],
                 "p_type": pet["p_type"],
