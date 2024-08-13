@@ -105,7 +105,7 @@ async def post_pet(user_id : str, pet: Pet):
         "p_color": pet.p_color,
         "p_age": pet.p_age,
         "predict": [],
-        "profile_image": pet.profile_image if pet.predict else None
+        "profile_image": pet.profile_image if pet.profile_image else None
     }
     for predict in pet.predict:
         predict_data = {
