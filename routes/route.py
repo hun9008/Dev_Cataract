@@ -78,8 +78,10 @@ async def login_user(request: LoginRequest):
     u_pwd = request.u_pwd
     user = collection_name_user.find_one({"u_email": u_email, "u_pwd": u_pwd})
     if user:
-        user["_id"] = str(user["_id"])
-        return user
+        return {
+            "_id": str(user["_id"]),
+            "u_nickname": user["u_nickname"],
+        }
     else:
         raise HTTPException(status_code=404, detail="User not found or password incorrect")
 
