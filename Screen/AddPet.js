@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, TextInput, Button, StyleSheet, Text, Alert, Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 const AddPet = ({ route, navigation }) => {
@@ -25,10 +24,8 @@ const AddPet = ({ route, navigation }) => {
             p_type: petType,
             p_color: petColor,
             p_age: petAge,
-            profile_image: imageBase64, // Add the base64 image data here
+            profile_image: imageBase64,
         };
-        console.log(userId);
-        console.log(JSON.stringify(petData));
 
         const url = `http://cataractserver.hunian.site/account/user/pet?user_id=${userId}`;
         fetch(url, {
@@ -47,8 +44,7 @@ const AddPet = ({ route, navigation }) => {
             })
             .then((responseJson) => {
                 Alert.alert('Pet added successfully!');
-                console.log('Response JSON:', responseJson);
-                navigation.goBack(); // Navigate back to the previous screen
+                navigation.goBack();
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
@@ -77,32 +73,36 @@ const AddPet = ({ route, navigation }) => {
                 {!imageUri && <Ionicons name="person-circle-outline" size={100} color="black" />}
                 {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />}
             </View>
-            <Button title="Pick Profile Picture" onPress={pickImage} />
-            <Text style={styles.label}>Name:</Text>
+            <View style={styles.buttonContainer}>
+                <Button title="반려동물 사진 선택" onPress={pickImage} color="#21610B" />
+            </View>
+            <Text style={styles.label}>이름:</Text>
             <TextInput
                 style={styles.input}
                 value={petName}
                 onChangeText={setPetName}
             />
-            <Text style={styles.label}>Type:</Text>
+            <Text style={styles.label}>견종:</Text>
             <TextInput
                 style={styles.input}
                 value={petType}
                 onChangeText={setPetType}
             />
-            <Text style={styles.label}>Color:</Text>
+            <Text style={styles.label}>털 색깔:</Text>
             <TextInput
                 style={styles.input}
                 value={petColor}
                 onChangeText={setPetColor}
             />
-            <Text style={styles.label}>Age:</Text>
+            <Text style={styles.label}>나이:</Text>
             <TextInput
                 style={styles.input}
                 value={petAge}
                 onChangeText={setPetAge}
             />
-            <Button title="Add Pet" onPress={handleAddPet} />
+            <View style={styles.buttonContainer}>
+                <Button title="반려동물 추가" onPress={handleAddPet} color="#21610B" />
+            </View>
         </View>
     );
 };
@@ -132,8 +132,11 @@ const styles = StyleSheet.create({
         borderRadius: 50,
     },
     iconContainer: {
-        alignItems: 'center', // Center horizontally
-        justifyContent: 'center', // Center vertically
-        marginBottom: 20, // Add space below the icon if needed
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 20,
+    },
+    buttonContainer: {
+        marginVertical: 10,
     },
 });

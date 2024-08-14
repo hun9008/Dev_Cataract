@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 const Home = ({ navigation, route }) => {
@@ -57,13 +57,46 @@ const Home = ({ navigation, route }) => {
                     ))}
                 </ScrollView>
             </View>
-            <Text>Home Screen</Text>
+
+            {/* Remove Home Screen text */}
+            {/* <Text>Home Screen</Text> */}
+
             {userNickname && <Text>User Nickname: {userNickname}</Text>}
-            <Button title="Pet 등록하기" onPress={() => navigation.navigate('AddPet', { userId })} />
-            <Button title="커뮤니티" onPress={() => navigation.navigate('Community', { userId })} />
-            <Button title="카메라" onPress={() => navigation.navigate('SelectGalleryOrCam', { userId })} />
-            <Button title="검사 결과 확인하기" onPress={() => navigation.navigate('PetInform', { userId })} />
-            <Button title="마이페이지" onPress={() => navigation.navigate('Mypage', { userNickname })} />
+
+            {/* 펫 등록하기 버튼 */}
+            <TouchableOpacity
+                style={styles.longButton}
+                onPress={() => navigation.navigate('AddPet', { userId })}>
+                <Text style={styles.buttonText}>Pet 등록하기</Text>
+            </TouchableOpacity>
+
+            {/* 카메라와 커뮤니티 버튼 */}
+            <View style={styles.buttonRow}>
+                <TouchableOpacity
+                    style={styles.rectButton}
+                    onPress={() => navigation.navigate('SelectGalleryOrCam', { userId })}>
+                    <Text style={styles.buttonText}>카메라</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.rectButton}
+                    onPress={() => navigation.navigate('Community', { userId })}>
+                    <Text style={styles.buttonText}>커뮤니티</Text>
+                </TouchableOpacity>
+            </View>
+
+            {/* 나머지 버튼 */}
+            <View style={styles.buttonColumn}>
+                <TouchableOpacity
+                    style={styles.normalButton}
+                    onPress={() => navigation.navigate('PetInform', { userId })}>
+                    <Text style={styles.buttonText}>검사 결과 확인하기</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.normalButton}
+                    onPress={() => navigation.navigate('Mypage', { userNickname })}>
+                    <Text style={styles.buttonText}>마이페이지</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };
@@ -75,11 +108,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'flex-start',
         alignItems: 'center',
-        paddingTop: 70,
+        paddingTop: 35, // Adjusted paddingTop to reduce top margin
     },
     scrollViewWrapper: {
-        width: '100%', // Ensures the ScrollView spans the full width of the screen
-        height: 120, // Sets the desired height
+        width: '100%',
+        height: 120,
     },
     scrollContainer: {
         flexDirection: 'row',
@@ -96,7 +129,7 @@ const styles = StyleSheet.create({
     image: {
         width: 60,
         height: 60,
-        borderRadius: 50, // Makes the image circular
+        borderRadius: 50,
         borderWidth: 1,
         borderColor: '#ccc',
     },
@@ -108,11 +141,53 @@ const styles = StyleSheet.create({
     iconWrapper: {
         width: 60,
         height: 60,
-        borderRadius: 50, // Makes the wrapper circular
+        borderRadius: 50,
         borderWidth: 1,
-        borderColor: '#000', // Black border color
+        borderColor: '#000',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'white', // Optional: background color for better visibility
+        backgroundColor: 'white',
+    },
+    longButton: {
+        width: '80%',
+        height: 50,
+        borderRadius: 10,
+        backgroundColor: '#21610B',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    rectButton: {
+        width: 150, // Adjusted width
+        height: 300, // Adjusted height
+        borderRadius: 10,
+        backgroundColor: '#21610B',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginHorizontal: 5, // Adjusted spacing between buttons
+    },
+    buttonRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 10,
+        width: '80%',
+    },
+    buttonColumn: {
+        width: '80%',
+        marginTop: 20,
+        alignItems: 'stretch',
+    },
+    normalButton: {
+        height: 50,
+        marginTop: 10,
+        borderRadius: 10,
+        backgroundColor: '#21610B',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    buttonText: {
+        color: 'white',
+        fontSize: 16,
+        textAlign: 'center',
     },
 });
