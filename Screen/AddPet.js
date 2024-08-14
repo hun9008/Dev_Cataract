@@ -27,8 +27,6 @@ const AddPet = ({ route, navigation }) => {
             p_age: petAge,
             profile_image: imageBase64, // Add the base64 image data here
         };
-        console.log(userId);
-        console.log(JSON.stringify(petData));
 
         const url = `http://cataractserver.hunian.site/account/user/pet?user_id=${userId}`;
         fetch(url, {
