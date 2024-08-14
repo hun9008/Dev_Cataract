@@ -221,6 +221,7 @@ async def post_feed(post: Post, user_id : str, predict_id : str, pet_name : str)
     inserted_id = collection_name_post.insert_one(post_data).inserted_id
     return {"_id": str(inserted_id)}
 
+# get article
 @router.get("/posting/feed{post_id}")
 async def get_feed(post_id: str):
     post = collection_name_post.find_one({"_id": ObjectId(post_id)})
