@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Button, Image, View, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
-export default function Gallery({ navigation }) {
+export default function Gallery({ navigation, route }) {
+  const { userId, selectedPet } = route.params || {};
   const [image, setImage] = useState(null);
   const [base64Image, setBase64Image] = useState(null);
   const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
@@ -29,7 +30,9 @@ export default function Gallery({ navigation }) {
       setBase64Image(result.assets[0].base64);
 
       let dataToSend = {
-        img:result.assets[0].base64
+        img:result.assets[0].base64,
+        user_id:userId,
+        pet_name:selectedPet
        };
       console.log(JSON.stringify(dataToSend).slice(0, 100) + '...' + JSON.stringify(dataToSend).slice(-100))
 
@@ -43,7 +46,7 @@ export default function Gallery({ navigation }) {
           .then((response) => response.json())
           .then((responseJson) => {
             console.log(responseJson);
-            navigation.navigate('CameraResult', { Lime: responseJson.lime,  Vit : responseJson.vit, Predict: responseJson.predicted_class, Probability: responseJson.probability});
+            navigation.navigate('CameraResult', { Lime: responseJson.lime, Vit : responseJson.vit, Predict: responseJson.predicted_class, Probability: responseJson.probability});
           })
           .catch((error) => {
             console.error(error);

@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useIsFocused } from '@react-navigation/native';
 
 const Home = ({ navigation, route }) => {
     const { userId, userNickname } = route.params || {};
-
     const [pets, setPets] = useState([]);
+    const isFocused = useIsFocused();
 
-    useEffect(() => {
+    const fetchPets = () => {
         if (userId) {
             const url = `http://cataractserver.hunian.site/account/user/all_pet?user_id=${userId}`;
             fetch(url, {
@@ -24,24 +26,39 @@ const Home = ({ navigation, route }) => {
                 })
                 .then((responseJson) => {
                     setPets(responseJson);
-                    console.log('Response JSON:', responseJson);
                 })
                 .catch((error) => {
                     console.error('Error fetching data:', error);
                 });
         }
-    }, [userId]);
+    };
+
+    useEffect(() => {
+        if (isFocused) {
+            fetchPets();
+        }
+    }, [isFocused]);
 
     const handlePetPress = (p_name) => {
         navigation.navigate('PetInform', { userId, p_name });
     };
 
+    const handleProfilePress = () => {
+        navigation.navigate('Mypage', { userNickname });
+    };
+
     return (
         <View style={styles.container}>
+            <View style={styles.header}>
+                <Text style={styles.myPetText}>My Pet</Text>
+                <TouchableOpacity style={styles.profileIcon} onPress={handleProfilePress}>
+                    <Ionicons name="person-circle-outline" size={40} color="black" />
+                </TouchableOpacity>
+            </View>
             <View style={styles.scrollViewWrapper}>
                 <ScrollView horizontal contentContainerStyle={styles.scrollContainer} style={styles.scrollView}>
                     {pets.map((pet, index) => (
-                        <TouchableOpacity key={index} style={styles.petItem} onPress={() => handlePetPress(pet.p_name)}>
+                        <TouchableOpacity key={index} style={[styles.petItem, styles.dropShadow]} onPress={() => handlePetPress(pet.p_name)}>
                             {pet.profile_image ? (
                                 <Image
                                     style={styles.image}
@@ -55,46 +72,35 @@ const Home = ({ navigation, route }) => {
                             <Text style={styles.petName}>{pet.p_name}</Text>
                         </TouchableOpacity>
                     ))}
+                    <TouchableOpacity style={styles.addPetButton} onPress={() => navigation.navigate('AddPet', { userId })}>
+                        <FontAwesome5 name="plus" size={24} color="gray" />
+                    </TouchableOpacity>
                 </ScrollView>
             </View>
 
-            {/* Remove Home Screen text */}
-            {/* <Text>Home Screen</Text> */}
+            <View style={styles.menuContainer}>
+                {/* 첫 번째 줄: 촬영하기와 커뮤니티 */}
+                <View style={styles.menuRow}>
+                    <TouchableOpacity style={[styles.menuButton, styles.dropShadow, { backgroundColor: '#649054' }]} onPress={() => navigation.navigate('SelectGalleryOrCam', { userId })}>
+                        <FontAwesome5 name="camera" size={40} color="white" />
+                        <Text style={styles.menuText}>강아지 눈 촬영하기</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.menuButton, styles.dropShadow, { backgroundColor: '#A0855B' }]} onPress={() => navigation.navigate('Community', { userId })}>
+                        <FontAwesome5 name="users" size={40} color="white" />
+                        <Text style={styles.menuText}>커뮤니티</Text>
+                    </TouchableOpacity>
+                </View>
 
-            {userNickname && <Text>User Nickname: {userNickname}</Text>}
-
-            {/* 펫 등록하기 버튼 */}
-            <TouchableOpacity
-                style={styles.longButton}
-                onPress={() => navigation.navigate('AddPet', { userId })}>
-                <Text style={styles.buttonText}>Pet 등록하기</Text>
-            </TouchableOpacity>
-
-            {/* 카메라와 커뮤니티 버튼 */}
-            <View style={styles.buttonRow}>
-                <TouchableOpacity
-                    style={styles.rectButton}
-                    onPress={() => navigation.navigate('SelectGalleryOrCam', { userId })}>
-                    <Text style={styles.buttonText}>카메라</Text>
+                {/* 두 번째 줄: 검사 결과 모아보기 */}
+                <TouchableOpacity style={[styles.resultButton, styles.dropShadow]} onPress={() => navigation.navigate('PetInform', { userId })}>
+                    <FontAwesome5 name="file-alt" size={40} color="black" />
+                    <Text style={styles.resultText}>검사 결과 모아보기</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.rectButton}
-                    onPress={() => navigation.navigate('Community', { userId })}>
-                    <Text style={styles.buttonText}>커뮤니티</Text>
-                </TouchableOpacity>
-            </View>
 
-            {/* 나머지 버튼 */}
-            <View style={styles.buttonColumn}>
-                <TouchableOpacity
-                    style={styles.normalButton}
-                    onPress={() => navigation.navigate('PetInform', { userId })}>
-                    <Text style={styles.buttonText}>검사 결과 확인하기</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.normalButton}
-                    onPress={() => navigation.navigate('Mypage', { userNickname })}>
-                    <Text style={styles.buttonText}>마이페이지</Text>
+                {/* 세 번째 줄: 가까운 병원 찾기 */}
+                <TouchableOpacity style={[styles.hospitalButton, styles.dropShadow]} onPress={() => { /* 버튼 클릭 시 아무 작업도 하지 않음 */ }}>
+                    <FontAwesome5 name="hospital" size={40} color="black" />
+                    <Text style={styles.hospitalText}>가까운 병원 찾기</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -106,9 +112,21 @@ export default Home;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'flex-start',
+        paddingTop: 70,
+        backgroundColor: '#fff',
+    },
+    header: {
+        flexDirection: 'row',
         alignItems: 'center',
-        paddingTop: 35, // Adjusted paddingTop to reduce top margin
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+    },
+    myPetText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+    },
+    profileIcon: {
+        padding: 10,
     },
     scrollViewWrapper: {
         width: '100%',
@@ -117,77 +135,107 @@ const styles = StyleSheet.create({
     scrollContainer: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        paddingTop: 20,
-        paddingLeft: 10,
-        height: 120,
+        paddingLeft: 20,
+        paddingTop: 10,
     },
     petItem: {
         justifyContent: 'center',
         alignItems: 'center',
-        marginHorizontal: 10,
+        marginRight: 20,
     },
     image: {
         width: 60,
         height: 60,
-        borderRadius: 50,
+        borderRadius: 30,
         borderWidth: 1,
         borderColor: '#ccc',
     },
     petName: {
         marginTop: 5,
-        fontSize: 10,
+        fontSize: 12,
         fontWeight: 'bold',
     },
     iconWrapper: {
         width: 60,
         height: 60,
-        borderRadius: 50,
+        borderRadius: 30,
         borderWidth: 1,
         borderColor: '#000',
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'white',
     },
-    longButton: {
-        width: '80%',
-        height: 50,
-        borderRadius: 10,
-        backgroundColor: '#21610B',
+    addPetButton: {
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 20,
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: '#f5f5f5',
+        borderWidth: 1,
+        borderColor: '#ddd',
     },
-    rectButton: {
-        width: 150, // Adjusted width
-        height: 300, // Adjusted height
-        borderRadius: 10,
-        backgroundColor: '#21610B',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginHorizontal: 5, // Adjusted spacing between buttons
+    menuContainer: {
+        flex: 1,
+        paddingHorizontal: 20,
+        paddingTop: 20,
     },
-    buttonRow: {
+    menuRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 10,
-        width: '80%',
+        marginBottom: 15,
     },
-    buttonColumn: {
-        width: '80%',
-        marginTop: 20,
-        alignItems: 'stretch',
-    },
-    normalButton: {
-        height: 50,
-        marginTop: 10,
-        borderRadius: 10,
-        backgroundColor: '#21610B',
-        justifyContent: 'center',
+    menuButton: {
+        flex: 1,
         alignItems: 'center',
+        justifyContent: 'center',
+        height: 200,
+        paddingVertical: 15,
+        borderRadius: 10,
+        marginRight: 10, // 두 버튼 간격
     },
-    buttonText: {
+    menuText: {
+        marginTop: 10, // 아이콘과 텍스트 사이의 간격
         color: 'white',
         fontSize: 16,
-        textAlign: 'center',
+        fontWeight: 'bold',
+    },
+    resultButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 15,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        marginBottom: 15,
+        height: 100,
+    },
+    resultText: {
+        marginLeft: 10,
+        color: 'black',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    hospitalButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 15,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        height: 100,
+    },
+    hospitalText: {
+        marginLeft: 10,
+        color: 'black',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    dropShadow: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 10, // 안드로이드에서의 그림자 효과
     },
 });

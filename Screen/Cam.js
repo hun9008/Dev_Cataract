@@ -2,7 +2,8 @@ import React, { useState, useRef } from 'react';
 import { Camera, CameraType } from 'expo-camera/legacy';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function Cam({ navigation }) {
+export default function Cam({ navigation, route}) {
+  const { userId, selectedPet } = route.params || {};
   const [type, setType] = useState(CameraType.back);
   const [permission, requestPermission] = Camera.useCameraPermissions();
   const cameraRef = useRef(null); // Create a ref for the camera
@@ -34,7 +35,7 @@ export default function Cam({ navigation }) {
       const photo = await cameraRef.current.takePictureAsync(options);
       setPhoto(photo);
 
-      let dataToSend = { img:photo.base64 };
+      let dataToSend = { img:photo.base64, user_id:userId, pet_name:selectedPet};
 
       fetch('http://cataractmodel.hunian.site/inference', {
         method: 'POST',

@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
 } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 const Login = ({ navigation }) => {
   const [userEmail, setUserEmail] = useState('');
@@ -75,7 +75,7 @@ const Login = ({ navigation }) => {
           alignContent: 'center',
         }}>
         <View style={styles.iconContainer}>
-          <MaterialCommunityIcons name="dog" size={100} color='#21610B' />
+          <MaterialIcons name="pets" size={100} color="#21610B" />
         </View>
         <View>
           <KeyboardAvoidingView enabled>
