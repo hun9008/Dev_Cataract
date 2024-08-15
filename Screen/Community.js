@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 20,
     right: 20,
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#A0855B',
     padding: 15,
     borderRadius: 5,
     zIndex: 10, // Ensure button is on top of other elements
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     paddingTop: 70, // Adjust padding to ensure the FlatList does not overlap with the button
   },
   feedItem: {
-    backgroundColor: '#fff',
+    backgroundColor: '#A6C09D',
     borderRadius: 8,
     marginBottom: 10,
     padding: 10,
