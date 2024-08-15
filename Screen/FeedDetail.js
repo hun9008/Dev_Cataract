@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, ScrollView, Button, StyleSheet, TouchableOpacity, Alert, Modal, FlatList } from 'react-native';
+import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Alert, Modal, FlatList } from 'react-native';
 
 export default function FeedDetail({ route, navigation }) {
   const { po_id } = route.params;  // Access po_id from route params
@@ -50,7 +50,6 @@ export default function FeedDetail({ route, navigation }) {
     );
   }
 
-  // Assuming the API returns an array of posts, you may need to adjust this depending on the API response structure
   const { po_detail, user_id, image = [], pet, final_predict, comment_list = [], like_list = [] } = post[0] || {};
   const { u_nickname, profile_image } = post[1] || {};
 
@@ -71,33 +70,33 @@ export default function FeedDetail({ route, navigation }) {
         <Image source={{ uri: `data:image/png;base64,${image[0]}` }} style={styles.postImage} />
       )}
 
-      <Text style={styles.petInfo}>Pet: {pet.p_name} ({pet.p_type}, {pet.p_color}, {pet.p_age} years old)</Text>
+      <Text style={styles.petInfo}>반려동물: {pet.p_name} ({pet.p_type}, {pet.p_color}, {pet.p_age} 세)</Text>
 
       {final_predict && (
         <View style={styles.predictionContainer}>
           <Text style={styles.predictionText}>
-            Prediction: {final_predict.predicted_class} ({(final_predict.probability * 100).toFixed(2)}%)
+            예측 결과: {final_predict.predicted_class} ({(final_predict.probability * 100).toFixed(2)}%)
           </Text>
-          <Text style={styles.predictionDate}>Date: {final_predict.date}</Text>
+          <Text style={styles.predictionDate}>날짜: {final_predict.date}</Text>
         </View>
       )}
 
       <View style={styles.likesContainer}>
         <TouchableOpacity onPress={() => setLikesVisible(true)}>
-          <Text style={styles.likesText}>Likes: {like_list.length}</Text>
+          <Text style={styles.likesText}>좋아요: {like_list.length}</Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.commentsHeader}>Comments:</Text>
+      <Text style={styles.commentsHeader}>댓글:</Text>
       {comment_list.length > 0 ? (
         comment_list.map((comment) => (
           <View key={comment._id} style={styles.commentItem}>
-            <Text style={styles.commentUserId}>User: {comment.u_nickname}</Text>
+            <Text style={styles.commentUserId}>사용자: {comment.u_nickname}</Text>
             <Text style={styles.commentText}>{comment.co_detail}</Text>
           </View>
         ))
       ) : (
-        <Text>No comments yet.</Text>
+        <Text>댓글이 없습니다.</Text>
       )}
 
       {/* Modal for showing the list of users who liked the post */}
@@ -109,13 +108,15 @@ export default function FeedDetail({ route, navigation }) {
       >
         <View style={styles.modalContainer}>
           <View style={styles.likesListContainer}>
-            <Text style={styles.likesListTitle}>Liked by:</Text>
+            <Text style={styles.likesListTitle}>좋아요한 사용자:</Text>
             <FlatList
               data={like_list}
               keyExtractor={(item) => item.user_id}
               renderItem={({ item }) => <Text style={styles.likesListItem}>{item.user_id}</Text>}
             />
-            <Button title="Close" onPress={() => setLikesVisible(false)} />
+            <TouchableOpacity style={styles.button} onPress={() => setLikesVisible(false)}>
+              <Text style={styles.buttonText}>닫기</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -127,6 +128,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: '#F5F5F5',
   },
   loadingContainer: {
     flex: 1,
@@ -143,6 +145,8 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     marginRight: 10,
+    borderWidth: 2,
+    borderColor: '#21610B', // 초록색 테두리 추가
   },
   placeholderImage: {
     width: 50,
@@ -154,6 +158,7 @@ const styles = StyleSheet.create({
   nickname: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: '#21610B', // 초록색 텍스트로 변경
   },
   postDetail: {
     fontSize: 16,
@@ -168,13 +173,21 @@ const styles = StyleSheet.create({
   petInfo: {
     fontSize: 16,
     marginBottom: 10,
+    fontWeight: 'bold',
+    color: '#21610B', // 초록색 텍스트로 변경
   },
   predictionContainer: {
     marginBottom: 20,
+    padding: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
   predictionText: {
     fontSize: 16,
     fontWeight: 'bold',
+    marginBottom: 5,
   },
   predictionDate: {
     fontSize: 14,
@@ -186,22 +199,27 @@ const styles = StyleSheet.create({
   likesText: {
     fontSize: 16,
     color: '#007BFF',
+    fontWeight: 'bold',
   },
   commentsHeader: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: '#21610B', // 초록색 텍스트로 변경
   },
   commentItem: {
     padding: 10,
     borderBottomColor: '#ccc',
     borderBottomWidth: 1,
     marginBottom: 10,
+    backgroundColor: '#FFF',
+    borderRadius: 10,
   },
   commentUserId: {
     fontSize: 14,
     fontWeight: 'bold',
     color: '#555',
+    marginBottom: 5,
   },
   commentText: {
     fontSize: 16,
@@ -222,9 +240,22 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: '#21610B', // 초록색 텍스트로 변경
   },
   likesListItem: {
     fontSize: 16,
     paddingVertical: 5,
+  },
+  button: {
+    backgroundColor: '#21610B',
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

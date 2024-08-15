@@ -111,7 +111,7 @@ export default function FeedUpload({ navigation, route }) {
     <View style={styles.container}>
       <TextInput
         style={styles.textInput}
-        placeholder="Write your post..."
+        placeholder="게시글을 작성하세요..."
         multiline
         value={postText}
         onChangeText={setPostText}
@@ -119,27 +119,32 @@ export default function FeedUpload({ navigation, route }) {
 
       {selectedResult && (
         <View style={styles.resultContainer}>
-          <Text style={styles.resultText}>Class: {selectedResult.predicted_class}</Text>
-          <Text style={styles.resultText}>Date: {selectedResult.date}</Text>
+          <Text style={styles.resultText}>진단 결과: {selectedResult.predicted_class}</Text>
+          <Text style={styles.resultText}>날짜: {selectedResult.date}</Text>
           <Image source={{ uri: selectedImages.lime }} style={styles.resultImage} />
           <Image source={{ uri: selectedImages.gradCam }} style={styles.resultImage} />
         </View>
       )}
 
-      <Button title="결과지 가져오기" onPress={() => setResultModalVisible(true)} />
+      <TouchableOpacity style={styles.button} onPress={() => setResultModalVisible(true)}>
+        <Text style={styles.buttonText}>결과지 가져오기</Text>
+      </TouchableOpacity>
 
       {selectedPet && (
-        <Text style={styles.selectedPetText}>Selected Pet: {selectedPet}</Text>
+        <Text style={styles.selectedPetText}>선택된 반려동물: {selectedPet}</Text>
       )}
 
       {selectedPet && (
-        <TouchableOpacity style={styles.selectAgainButton} onPress={() => setModalVisible(true)}>
-          <Text style={styles.selectAgainButtonText}>Select Pet Again</Text>
+        <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
+          <Text style={styles.buttonText}>다른 반려동물 선택</Text>
         </TouchableOpacity>
       )}
 
-      <Button title="업로드하기" onPress={handlePostUpload} />
+      <TouchableOpacity style={[styles.button, styles.uploadButton]} onPress={handlePostUpload}>
+        <Text style={styles.buttonText}>업로드하기</Text>
+      </TouchableOpacity>
 
+      {/* 반려동물 선택 모달 */}
       <Modal
         visible={modalVisible}
         transparent={true}
@@ -171,6 +176,7 @@ export default function FeedUpload({ navigation, route }) {
         </View>
       </Modal>
 
+      {/* 결과 선택 모달 */}
       <Modal
         visible={resultModalVisible}
         transparent={true}
@@ -185,8 +191,8 @@ export default function FeedUpload({ navigation, route }) {
                 style={styles.resultItem}
                 onPress={() => handleResultSelect(result)}
               >
-                <Text style={styles.resultText}>Class: {result.predicted_class}</Text>
-                <Text style={styles.resultText}>Date: {result.date}</Text>
+                <Text style={styles.resultText}>진단 결과: {result.predicted_class}</Text>
+                <Text style={styles.resultText}>날짜: {result.date}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -200,6 +206,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: '#F5F5F5', // 배경색 추가
   },
   textInput: {
     height: 100,
@@ -209,12 +216,46 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 20,
     textAlignVertical: 'top',
+    backgroundColor: '#FFFFFF', // 입력창 배경색
   },
-  previewImage: {
-    width: '100%',
-    height: 200,
+  resultContainer: {
     marginBottom: 20,
+    padding: 10,
+    backgroundColor: '#FFFFFF', // 결과 컨테이너 배경색
     borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  resultText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  resultImage: {
+    width: '100%',
+    height: 150,
+    marginTop: 10,
+    borderRadius: 10,
+  },
+  button: {
+    backgroundColor: '#21610B',
+    padding: 15,
+    borderRadius: 10,
+    marginVertical: 10,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  uploadButton: {
+    backgroundColor: '#154718', // 업로드 버튼의 색상 약간 더 진하게
+  },
+  selectedPetText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginVertical: 10,
   },
   modalContainer: {
     flex: 1,
@@ -230,7 +271,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   petItem: {
-    justifyContent: 'center',
+    justifyContent: 'center', // 잘못된 문자열 수정
     alignItems: 'center',
     margin: 10,
     width: 120,
@@ -259,25 +300,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  selectedPetText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginVertical: 10,
-  },
-  selectAgainButton: {
-    backgroundColor: '#000', // Button color
-    padding: 10,
-    borderRadius: 5,
-    marginVertical: 10,
-    alignItems: 'center',
-  },
-  selectAgainButtonText: {
-    color: 'white',
-    fontSize: 16,
-  },
-  resultContainer: {
-    marginBottom: 20,
-  },
   resultItem: {
     backgroundColor: '#fff',
     padding: 10,
@@ -286,15 +308,4 @@ const styles = StyleSheet.create({
     width: '90%',
     alignItems: 'center',
   },
-  resultText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  resultImage: {
-    width:150,
-    height: 150,
-    marginTop: 10,
-    borderRadius: 10,
-  },
 });
-
