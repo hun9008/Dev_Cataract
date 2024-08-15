@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Text, Alert, Image } from 'react-native';
+import { View, TextInput, StyleSheet, Text, Alert, Image, TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -74,7 +74,9 @@ const AddPet = ({ route, navigation }) => {
                 {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />}
             </View>
             <View style={styles.buttonContainer}>
-                <Button title="반려동물 사진 선택" onPress={pickImage} color="#21610B" />
+                <TouchableOpacity style={styles.buttonStyle} onPress={pickImage}>
+                    <Text style={styles.buttonTextStyle}>반려동물 사진 선택</Text>
+                </TouchableOpacity>
             </View>
             <Text style={styles.label}>이름:</Text>
             <TextInput
@@ -101,7 +103,9 @@ const AddPet = ({ route, navigation }) => {
                 onChangeText={setPetAge}
             />
             <View style={styles.buttonContainer}>
-                <Button title="반려동물 추가" onPress={handleAddPet} color="#21610B" />
+                <TouchableOpacity style={styles.buttonStyle} onPress={handleAddPet}>
+                    <Text style={styles.buttonTextStyle}>반려동물 추가</Text>
+                </TouchableOpacity>
             </View>
         </View>
     );
@@ -124,6 +128,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         padding: 10,
         marginBottom: 20,
+        borderRadius: 5, // Optional: rounding input fields
     },
     image: {
         width: 100,
@@ -138,5 +143,18 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         marginVertical: 10,
+    },
+    buttonStyle: {
+        backgroundColor: '#21610B',
+        paddingVertical: 15, // Adjusted padding for height
+        paddingHorizontal: 20,
+        borderRadius: 30, // Rounded corners
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    buttonTextStyle: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });

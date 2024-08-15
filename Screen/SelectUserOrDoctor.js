@@ -18,13 +18,13 @@ const SelectDoctorUser = ({ navigation }) => {
           style={styles.buttonStyle}
           activeOpacity={0.5}
           onPress={handleDoctorPress}>
-          <Text style={styles.buttonTextStyle}>Doctor</Text>
+          <Text style={styles.buttonTextStyle}>수의사</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.buttonStyle}
           activeOpacity={0.5}
           onPress={handleUserPress}>
-          <Text style={styles.buttonTextStyle}>User</Text>
+          <Text style={styles.buttonTextStyle}>사용자</Text>
         </TouchableOpacity>
       </View>
     </View>
