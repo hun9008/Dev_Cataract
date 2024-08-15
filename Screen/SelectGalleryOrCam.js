@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Button, StyleSheet, Modal, TouchableOpacity, Image, Text, ScrollView, Alert } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Modal, Image, Text, ScrollView, Alert } from 'react-native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 export default function SelectGalleryOrCam({ navigation, route }) {
@@ -51,22 +51,26 @@ export default function SelectGalleryOrCam({ navigation, route }) {
     <View style={styles.container}>
       {/* Always visible buttons */}
       <View style={styles.buttonsContainer}>
-        <Button
-          title="사진 촬영하기"
-          onPress={() => navigation.navigate('Cam', {userId, selectedPet})}
-        />
-        <Button
-          title="갤러리에서 가져오기"
-          onPress={() => navigation.navigate('Gallery', {userId, selectedPet})}
-        />
+        <TouchableOpacity
+          style={styles.buttonStyle}
+          onPress={() => navigation.navigate('Cam', { userId, selectedPet })}
+        >
+          <Text style={styles.buttonTextStyle}>사진 촬영하기</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.buttonStyle}
+          onPress={() => navigation.navigate('Gallery', { userId, selectedPet })}
+        >
+          <Text style={styles.buttonTextStyle}>갤러리에서 가져오기</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Conditionally render pet selection UI */}
       {selectedPet ? (
         <>
-          <Text style={styles.selectedPetText}>Selected Pet: {selectedPet}</Text>
+          <Text style={styles.selectedPetText}>반려동물 이름: {selectedPet}</Text>
           <TouchableOpacity style={styles.selectAgainButton} onPress={handleSelectAgain}>
-            <Text style={styles.selectAgainButtonText}>Select Again</Text>
+            <Text style={styles.selectAgainButtonText}>다시 선택하기</Text>
           </TouchableOpacity>
         </>
       ) : null}
@@ -114,13 +118,24 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     marginBottom: 20,
   },
+  buttonStyle: {
+    backgroundColor: '#21610B',
+    padding: 15,
+    borderRadius: 30, // 모서리를 둥글게
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  buttonTextStyle: {
+    color: 'white',
+    fontSize: 16,
+  },
   selectedPetText: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 20,
   },
   selectAgainButton: {
-    backgroundColor: '#000', // Choose a color for the button
+    backgroundColor: '#000',
     padding: 15,
     borderRadius: 5,
     marginTop: 10,
