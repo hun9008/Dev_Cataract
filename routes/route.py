@@ -252,7 +252,7 @@ async def post_comment(post_id: str, comment: Comment, user_id : str):
         "co_detail": comment.co_detail,
         "user_id": user_record["_id"],
         "type" : user_record["type"],
-        "like_list" : []
+        "like_list" : [] 
     }
     collection_name_post.update_one({"_id" : ObjectId(post_id)}, {"$push": {"comment_list": comment_data}})
     return {"message" : "Commented"}
@@ -367,5 +367,5 @@ async def post_delete_comment_like(post_id : str, comment_id : str, user_id : st
 # 주변 병원 검색
 @router.get("/hospital")
 async def get_hospital(region : str):
-    hospitals = get_hospitals(region)
+    hospitals = get_hospitals(region) # region에 따라서 병원 정보를 가져옴
     return hospitals
