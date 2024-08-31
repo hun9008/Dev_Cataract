@@ -252,6 +252,7 @@ async def post_comment(post_id: str, comment: Comment, user_id : str):
         "co_detail": comment.co_detail,
         "user_id": user_record["_id"],
         "type" : user_record["type"],
+        "like_list" : []
     }
     collection_name_post.update_one({"_id" : ObjectId(post_id)}, {"$push": {"comment_list": comment_data}})
     return {"message" : "Commented"}
@@ -324,8 +325,10 @@ async def get_like(post_id: str):
         post["like_list"] = []
     like_list = post["like_list"]
     for like in like_list:
-        like["user_id"] = str(like["user_id"])
-        like["po_id"] = str(like["po_id"])
+        user = collection_name_user.find_one({"_id" : ObjectId(like["user_id"])})
+        like["u_nickname"] = user["u_nickname"]
+        like["profile_image"] = user["profile_image"] if "profile_image" in user else None
+    like_list = convert_objectid_to_str(like_list)
     return like_list
 
 @router.get("/posting/feed/{post_id}/comment/{comment_id}/like")
@@ -335,8 +338,9 @@ async def get_comment_like(post_id : str, comment_id: str):
         if comment["_id"] == ObjectId(comment_id):
             like_list = comment["like_list"]
             for like in like_list:
-                like["user_id"] = str(like["user_id"])
-                like["co_id"] = str(like["co_id"])
+                user = collection_name_user.find_one({"_id" : ObjectId(like["user_id"])})
+                like["u_nickname"] = user["u_nickname"]
+                like["profile_image"] = user["profile_image"] if "profile_image" in user else None
             return like_list
 
 @router.delete("/posting/feed/{post_id}/like")
